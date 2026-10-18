@@ -1,124 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChaleChat Global - SALVATION TECH-GHANA</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ChaleChat FIXED - No Ghost</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:system-ui; background:#0f0f0f; color:white; min-height:100vh; display:flex; flex-direction:column}
-.header{background:linear-gradient(90deg,#CE1126,#FCD116,#006B3F); padding:12px 16px; font-weight:900; display:flex; justify-content:space-between}
-#loginPanel{max-width:400px; margin:50px auto; background:#1a1a1a; padding:24px; border-radius:16px; border:1px solid #333; width:90%; text-align:center}
-input{padding:12px; background:#222; color:white; border:1px solid #333; width:100%; border-radius:10px; margin:10px 0}
-button{padding:12px; background:#FCD116; color:black; font-weight:800; border:none; border-radius:10px; cursor:pointer}
-#chatArea{display:none; flex:1; flex-direction:column; overflow:hidden}
-#messages{flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:8px; background:#121212}
-.msg{padding:10px 12px; border-radius:14px; max-width:88%; line-height:1.5}
-.me{align-self:flex-end; background:#006B3F}
-.bot{align-self:flex-start; background:#1a2a4a; border:1px solid #FCD116}
-.meta{font-size:10px; opacity:.5; margin-bottom:3px}
-#bar{display:flex; gap:6px; padding:10px; background:#1a1a1a; border-top:1px solid #333}
-#msgInput{flex:1}
-.footer{text-align:center; padding:8px; background:#000; font-size:10px; color:#888; border-top:2px solid #FCD116}
-.typing{font-size:11px; color:#FCD116; padding:0 12px 6px; display:none}
-.badge{font-size:9px; background:#FCD116; color:black; padding:2px 6px; border-radius:8px; font-weight:900; margin-left:5px}
+body{background:#0a0a0a;color:white;font-family:system-ui;display:flex;flex-direction:column;height:100vh}
+.header{background:linear-gradient(90deg,#CE1126,#FCD116,#006B3F);padding:14px;text-align:center;font-weight:900}
+#msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.msg{padding:10px 14px;border-radius:18px;max-width:80%;line-height:1.4}
+.bot{background:#222;border:1px solid #FCD116;align-self:flex-start}
+.me{background:#006B3F;align-self:flex-end}
+#bar{display:flex;gap:8px;padding:12px;background:#111;border-top:1px solid #333}
+#bar input{flex:1;padding:14px;border-radius:12px;border:1px solid #333;background:#222;color:white}
+#bar button{padding:14px 20px;background:#FCD116;color:black;font-weight:900;border:none;border-radius:12px}
 </style>
 </head>
 <body>
-<div class="header"><div>CHALECHAT GLOBAL 🌍</div><div style="font-size:10px; background:black; padding:4px 8px; border-radius:10px">NO GHOST</div></div>
-
-<div id="loginPanel">
-<h2>Akwaaba! Final No-Ghost!</h2>
-<p style="font-size:12px; background:#006B3F; padding:8px; border-radius:8px; margin:10px 0">✅ Bot go reply 100% in 1 sec — even if Global AI slow!</p>
-<input id="username" placeholder="Your name e.g. Kwame">
-<button onclick="enterChat()">Enter Chat →</button>
-</div>
-
-<div id="chatArea">
-<div id="messages"></div>
-<div class="typing" id="typing">🌍 ChaleBot dey type...</div>
-<div id="bar">
-<input id="msgInput" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')send()">
-<button onclick="send()" style="width:80px">Send 🚀</button>
-</div>
-</div>
-
-<div class="footer">Powered by <b style="color:#FCD116">SALVATION TECH-GHANA</b> 🇬🇭 | Global AI | Accra © 2026</div>
+<div class="header">CHALECHAT FIXED ✅ NO GHOST - SALVATION TECH-GHANA</div>
+<div id="msgs"><div class="msg bot">Akwaaba chaley — I dey! Type Hello, I go reply instant! 🇬🇭</div></div>
+<div id="bar"><input id="txt" placeholder="Type Hello..." onkeypress="if(event.key==='Enter')doSend()"><button onclick="doSend()">Send 🚀</button></div>
 
 <script>
-const SUPABASE_URL='https://gmdtjtznwsimcseurntt.supabase.co';
-const SUPABASE_KEY='sb_publishable_79O8wusGRZszR6zezkihgg_nsfZ1u34';
-let supa; try{ supa=supabase.createClient(SUPABASE_URL,SUPABASE_KEY); }catch{}
-let me=''; let welcomed=false;
-
-function localSmartBrain(q){
-  let l=q.toLowerCase();
-  if(l.includes('hello')||l.includes('hi')||l.includes('hey')) return "Hello Chairman! 😎 Akwaaba! How you dey? I dey cool! You?";
-  if(l.includes('how are you')) return "I dey cool Chairman! Body dey inside cloth 😎 You nso? How Accra dey?";
-  if(l.includes('how many') && l.includes('region')) return "🇬🇭 Ghana get 16 regions! They be: Greater Accra, Ashanti, Eastern, Central, Western, Western North, Volta, Oti, Northern, Savannah, North East, Upper East, Upper West, Bono, Bono East, Ahafo! From 10 to 16 in 2019!";
-  if(l.includes('how many') && l.includes('planet')) return "🌍 We get 8 planets: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune! Pluto be dwarf planet now!";
-  if(l.includes('how many') && l.includes('continent')) return "🌍 We get 7 continents: Africa, Antarctica, Asia, Europe, North America, South America, Australia/Oceania!";
-  if(l.includes('capital') && l.includes('ghana')) return "Capital of Ghana be Accra! 🇬🇭 Biggest city!";
-  if(l.includes('who is elon')||l.includes('elon musk')) return "Elon Musk be businessman! CEO of Tesla, SpaceX, and X (Twitter)! Richest man for world sometimes! 🚀";
-  if(l.includes('what is') && l.includes('photo')) return "Photosynthesis be how plants make food! They use sunlight + water + CO2 to make sugar and oxygen! 🌿☀️";
-  if(l.includes('who is')||l.includes('what is')) return `Chale Chairman, "${q}" — That be big question! Briefly: I fit explain but make we keep am simple — I dey learn global things everyday! You want deep explanation?`;
-  if(['haha','lol','😂'].some(w=>l.includes(w))) return "😂 Chairman you go kill me with laugh!";
-  if(l.length<=5) return "Ei Chairman? 😅 Tell me more!";
-  return `Chale I hear you! "${q}" — You get point! Make we talk more! 😎`;
+// 100% LOCAL - NO FETCH - NO FAIL
+function add(text, who){
+  var box=document.getElementById('msgs');
+  var div=document.createElement('div');
+  div.className='msg '+(who==='me'?'me':'bot');
+  div.textContent=text;
+  box.appendChild(div);
+  box.scrollTop=box.scrollHeight;
 }
-
-async function askWithTimeout(question){
-  // Timeout promise - 2.5 sec max
-  const timeout = new Promise(res=>setTimeout(()=>res(null), 2500));
-  
-  const aiFetch = (async()=>{
-    try{
-      let prompt = `You are ChaleBot, Ghanaian friendly AI. Answer short (2 sentences) in Ghanaian pidgin style but correct facts. Q: ${question}`;
-      let controller = new AbortController();
-      setTimeout(()=>controller.abort(), 2000);
-      let r = await fetch('https://text.pollinations.ai/'+encodeURIComponent(prompt), {signal: controller.signal});
-      if(r.ok){ let t = await r.text(); if(t.length>5 && t.length<600) return t; }
-    }catch(e){}
-    return null;
-  })();
-
-  let globalAnswer = await Promise.race([aiFetch, timeout]);
-  if(globalAnswer) return globalAnswer;
-  // Fallback to local brain - INSTANT
-  return localSmartBrain(question);
+function getReply(t){
+  t=t.toLowerCase();
+  if(t.includes('hello')||t.includes('hi')||t.includes('hey')) return "Hello Kwame! 😎 Chaley how for? I dey live now! No more ghosting!";
+  if(t.includes('how are you')) return "I dey cool! Body dey inside cloth! 😂 You?";
+  if(t.includes('who are you')) return "I be ChaleBot from SALVATION TECH-GHANA! Made in Ghana 🇬🇭";
+  if(t.includes('region')) return "Ghana get 16 regions o!";
+  if(t.includes('planet')) return "8 planets dey!";
+  return "I hear you: '"+t+"' — Talk more! I go reply every time now! No ghosting again!";
 }
-
-function addMsg(user, text){
-  const box=document.getElementById('messages');
-  const isMe=user===me;
-  const div=document.createElement('div');
-  div.className='msg '+(isMe?'me':'bot');
-  const time=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  div.innerHTML=`<div class="meta">${user}${user==='ChaleBot AI'?' <span class="badge">AI</span>':''} • ${time}</div><div style="white-space:pre-wrap">${text.replace(/</g,'&lt;')}</div>`;
-  box.appendChild(div); box.scrollTop=box.scrollHeight;
+function doSend(){
+  var inp=document.getElementById('txt');
+  var text=inp.value.trim();
+  if(!text) return;
+  inp.value='';
+  add(text,'me');
+  // REPLY INSTANT - NO TIMEOUT FAIL
+  setTimeout(function(){
+    var reply=getReply(text);
+    add(reply,'bot');
+  }, 300);
 }
-
-function enterChat(){
-  let n=document.getElementById('username').value.trim();
-  if(!n){ alert('Enter name'); return; }
-  me=n;
-  document.getElementById('loginPanel').style.display='none';
-  document.getElementById('chatArea').style.display='flex';
-  if(!welcomed){ addMsg('ChaleBot AI','Akwaaba chaley'); welcomed=true; }
-}
-
-async function send(){
-  let inp=document.getElementById('msgInput');
-  let t=inp.value.trim(); if(!t) return; inp.value='';
-  addMsg(me,t);
-  if(supa) supa.from('messages').insert([{username:me,message:t}]).catch(()=>{});
-  document.getElementById('typing').style.display='block';
-  let reply = await askWithTimeout(t);
-  document.getElementById('typing').style.display='none';
-  addMsg('ChaleBot AI', reply);
-  if(supa) supa.from('messages').insert([{username:'ChaleBot AI',message:reply}]).catch(()=>{});
-}
+console.log("ChaleChat FIXED loaded - NO GHOST");
 </script>
 </body>
 </html>
