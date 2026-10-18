@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChaleChat Natural AI - SALVATION TECH-GHANA</title>
+<title>ChaleChat Fixed - SALVATION TECH-GHANA</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -14,101 +14,86 @@ input,button{border-radius:10px; border:none; outline:none}
 input{padding:10px 12px; background:#222; color:white; border:1px solid #333; width:100%}
 button{padding:10px 14px; background:#FCD116; color:black; font-weight:700; cursor:pointer}
 #loginPanel{max-width:420px; margin:40px auto; background:#1a1a1a; padding:24px; border-radius:16px; border:1px solid #333; width:90%}
-.langRow{display:flex; gap:8px}
-.langRow button{flex:1; background:#222; color:white; border:1px solid #444; padding:10px}
-.langRow button.active{background:#006B3F; color:white}
 #chatArea{display:none; flex:1; flex-direction:column; overflow:hidden}
 #messages{flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:8px; background:#121212}
 .msg{background:#1e1e1e; padding:10px 12px; border-radius:12px; max-width:85%; border:1px solid #2a2a2a}
 .msg.me{align-self:flex-end; background:#006B3F}
 .msg.bot{align-self:flex-start; background:#1a2a4a; border-color:#FCD116}
 .msg .meta{font-size:11px; opacity:0.6; margin-bottom:3px}
-.msg .text{font-size:14px; line-height:1.4; white-space:pre-wrap}
+.msg .text{font-size:14px; line-height:1.4}
 #inputBar{display:flex; gap:6px; padding:10px; background:#1a1a1a; border-top:1px solid #333; align-items:center}
 #messageInput{flex:1}
 .iconBtn{width:44px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:10px; font-size:18px}
-.footer{text-align:center; padding:12px; background:#0a0a0a; border-top:2px solid #FCD116; font-size:12px; color:#aaa}
-.footer b{color:#FCD116}
+.footer{text-align:center; padding:10px; background:#0a0a0a; border-top:2px solid #FCD116; font-size:11px; color:#aaa}
 .botBadge{font-size:10px; background:#FCD116; color:black; padding:2px 6px; border-radius:10px; margin-left:6px; font-weight:900}
 .typing{font-size:12px; color:#888; font-style:italic; padding:4px 12px; display:none}
 </style>
 </head>
 <body>
-<div class="header"><div class="logo">CHALECHAT 🇬🇭</div><div style="font-size:11px; background:black; padding:4px 8px; border-radius:20px">🧠 NATURAL</div></div>
+<div class="header"><div class="logo">CHALECHAT FIXED 🇬🇭</div><div style="font-size:11px; background:black; padding:4px 8px; border-radius:20px">NATURAL</div></div>
 
 <div id="loginPanel">
-<h2 style="text-align:center; margin-bottom:12px">Akwaaba! 😎</h2>
-<div style="text-align:center; margin-bottom:14px; background:#1a2a4a; padding:10px; border-radius:10px; font-size:13px; border:1px solid #FCD116">Natural Human Flow:<br>Bot go say <b>Akwaaba chaley ONCE</b>, then chat like human!</div>
-<input id="username" placeholder="Your name" style="margin-bottom:12px">
-<div class="langRow" style="margin-bottom:14px">
-<button onclick="setLang('en')" id="btn-en" class="active">English</button>
-<button onclick="setLang('tw')" id="btn-tw">Twi</button>
-<button onclick="setLang('pidgin')" id="btn-pidgin">Pidgin</button>
-</div>
+<h2 style="text-align:center; margin-bottom:12px">Akwaaba! Fix Logic!</h2>
+<div style="background:#006B3F; padding:10px; border-radius:10px; font-size:13px; margin-bottom:14px; text-align:center">✅ Fixed: No more repeating! Bot dey think like human now!</div>
+<input id="username" placeholder="Your name" style="margin-bottom:14px">
 <button style="width:100%" onclick="enterChat()">Enter Chat →</button>
 </div>
 
 <div id="chatArea"><div id="messages"></div><div class="typing" id="typing">ChaleBot dey type...</div>
 <div id="inputBar">
-<button class="iconBtn" onclick="toggleVoice()" id="micBtn">🎤</button>
+<button class="iconBtn" id="micBtn" onclick="toggleVoice()">🎤</button>
 <input id="messageInput" placeholder="Chat naturally..." onkeydown="if(event.key==='Enter')sendMsg()">
-<button class="iconBtn" onclick="toggleBotVoice()" id="soundBtn">🔊</button>
 <button onclick="sendMsg()" style="background:#FCD116">Send 🚀</button>
 </div>
 </div>
 
-<div class="footer">Powered by <b>SALVATION TECH-GHANA</b> 🇬🇭 | Natural AI | Made in Accra ❤️ © 2026</div>
+<div class="footer">Powered by <b>SALVATION TECH-GHANA</b> 🇬🇭 | Natural AI | Made in Accra © 2026</div>
 
 <script>
 const SUPABASE_URL = 'https://gmdtjtznwsimcseurntt.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_79O8wusGRZszR6zezkihgg_nsfZ1u34';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-let currentUser=''; let currentLang='en'; let botVoiceOn=true; let hasWelcomed=false; let recognition; let isRecording=false; let lastReply="";
+let currentUser=''; let lastBotReply=''; let recognition; let isRecording=false; let hasWelcomed=false;
 
-function setLang(l){ currentLang=l; document.querySelectorAll('.langRow button').forEach(b=>b.classList.remove('active')); document.getElementById('btn-'+l).classList.add('active'); }
-
-function naturalAI(text, lang){
-  let q=text.toLowerCase().trim();
-  // auto detect
-  if(/akwaaba|medaase|wo ho|aane|daabi/.test(q)) lang='tw';
-  if(/how far|abeg|weytin|i dey|sabi|o boy/.test(q)) lang='pidgin';
+function naturalHumanAI(text){
+  let q = text.toLowerCase().trim();
   
-  const pick=(arr)=>{ let r; do{ r=arr[Math.floor(Math.random()*arr.length)]; }while(r===lastReply && arr.length>1); lastReply=r; return r; };
-
-  // natural human flow
-  if(q.match(/hello|hi|hey|yo|morning/)){
-    return pick(lang==='tw'?["Yoo! Bossu! Ɛte sɛn?","Chale wo bɔ!","Maakye! Wo ho te sɛn?"]: lang==='pidgin'?["Omo! You don come! How far?","My guy! How you dey?","Chale! Long time o!"]:["Yo! What's good?","Hey hey! How you dey?","Chale! You good?"]);
+  // SHORT LAUGH / REACTIONS - MUST NOT QUOTE!
+  if(['haha','hehe','lol','lmao','😂','🤣'].some(w=>q.includes(w))){
+    const replies = ["😂 Chale you dey laugh me abi?","Haha ei 😂","Lol you funny!","😂😂 E sweet me!","Chale you go kill me with laugh!"];
+    let r; do{ r=replies[Math.floor(Math.random()*replies.length)]; }while(r===lastBotReply); lastBotReply=r; return r;
   }
-  if(q.match(/how are you|wo ho|how you dey/)){
-    return pick(["I dey cool chale, you know how we dey do am for Accra 😎 You?","Cool cool, just dey! You nso?","I dey! Body dey inside cloth 😂 You nko?"]);
+  if(['really','for real','eii','ei','wow','chale'].includes(q) || q.length <= 6){
+    const replies = ["For real? 😅","Ei chale!","Chale! 😳","Na true?","You serious? 😂","Eii!"];
+    let r; do{ r=replies[Math.floor(Math.random()*replies.length)]; }while(r===lastBotReply); lastBotReply=r; return r;
   }
-  if(q.match(/what you dey do|wetin you dey do|what.*doing/)){
-    return pick(["Just dey here dey chill, dey watch chat dey go 😎 You?","Nothing much, dey reason about Ghana Jollof 😂","I dey here dey hold chat for everybody!"]);
+  if(q.match(/adey kool|i dey cool|i'm fine|fine|good|great/)){
+    const replies = ["Nice one! You dey enjoy! 😎","Chale you dey fresh! How Accra dey?","Cool cool! We dey inside!"];
+    let r; do{ r=replies[Math.floor(Math.random()*replies.length)]; }while(r===lastBotReply); lastBotReply=r; return r;
   }
-  if(q.match(/ghana|accra|kumasi/)){
-    return pick(["Ghana be sweet o! Accra vibe be different! You dey Accra?","Chale Ghana be home! Where you dey?","For Ghana we dey enjoy! Which side you dey?"]);
+  if(q.match(/how are you|wo ho te sɛn|how you dey/)){
+    return "I dey cool chale! Body dey inside cloth 😎 You nso?";
   }
-  if(q.match(/jollof|food|chop/)){
-    return pick(["Ei you mention food! I don hungry o 😂 You chop already?","Chale Jollof matter no dey finish! Ghana Jollof be king!","Food talk? I fit chop fufu right now! 😂"]);
+  if(q.match(/jollof|food|chop|hungry/)){
+    return "Ghana Jollof be king o! 🍚🔥 You chop already?";
   }
-  if(q.match(/love|girlfriend|boyfriend|crush/)){
-    return pick(["Ei love matter? 😂 Chale e be serious o! Who be that?","Love? You dey love someone? Tell me!","Chale you dey in love? E sweet but e fit pain too o 😅"]);
+  if(q.match(/love|crush|babe/)){
+    return "Ei love matter? 😅 Who be that?";
   }
-  if(q.match(/joke|funny|laugh/)){
-    return pick(["Why Ghana light no dey stay? Because ECG dey do hide and seek! 😂","I be AI but I still dey fear my landlord! 😂","You funny pass! 😂"]);
+  if(q.match(/bye|sleep|later/)){
+    return "Aight chale, we go link later! ✌️";
   }
-  if(q.match(/bye|later|go sleep/)){
-    return pick(["Chale later o! We go link!","Ok boss, sleep well! We go chat tomorrow!","Aight, catch you later!"]);
-  }
-  // default natural
-  return pick([
-    `Chale for real? "${text}" — I feel you!`,
-    `Haha I hear you! "${text}" — you get point o!`,
-    `True true! "${text}" — make we talk more!`,
-    `Ei "${text}" — you dey talk sense!`,
-    `Chale you make I laugh! "${text}" 😂`,
-    `I dey you! "${text}" — wetin happen next?`
-  ]);
+  // Long messages - natural without quoting
+  const longReplies = [
+    "Chale I feel you! That be true talk!",
+    "You get point o! For real!",
+    "Ei that be deep o! Tell me more!",
+    "Chale you dey talk sense! No lie!",
+    "Hmm interesting! What you think we for do?",
+    "True true! Accra life be like that!",
+    "I hear you chale! We dey learn everyday!"
+  ];
+  let r; do{ r=longReplies[Math.floor(Math.random()*longReplies.length)]; }while(r===lastBotReply); lastBotReply=r; return r;
 }
 
 function initVoice(){
@@ -119,39 +104,32 @@ function initVoice(){
   recognition.onresult=(e)=>{ document.getElementById('messageInput').value=e.results[0][0].transcript; sendMsg(); };
 }
 function toggleVoice(){ if(!recognition) initVoice(); if(isRecording) recognition.stop(); else try{ recognition.start(); }catch{} }
-function speakText(t){ if(!botVoiceOn) return; window.speechSynthesis.cancel(); let u=new SpeechSynthesisUtterance(t); u.lang='en-GH'; u.rate=1; window.speechSynthesis.speak(u); }
-function toggleBotVoice(){ botVoiceOn=!botVoiceOn; document.getElementById('soundBtn').innerText=botVoiceOn?'🔊':'🔇'; }
 
 async function enterChat(){
   const n=document.getElementById('username').value.trim(); if(!n) return alert('Enter name'); currentUser=n;
   document.getElementById('loginPanel').style.display='none'; document.getElementById('chatArea').style.display='flex';
   initVoice(); await loadMessages(); subscribe();
-  // AKWAABA CHALEY - ONLY ONCE
-  setTimeout(async()=>{
-    const welcome="Akwaaba chaley";
-    addMessageToUI({username:'ChaleBot AI', message:welcome, created_at:new Date().toISOString()});
-    await supabaseClient.from('messages').insert([{username:'ChaleBot AI', message:welcome, lang:'Welcome'}]);
-    speakText(welcome);
-    hasWelcomed=true;
-  }, 700);
+  if(!hasWelcomed){
+    setTimeout(async()=>{
+      const welcome="Akwaaba chaley";
+      await supabaseClient.from('messages').insert([{username:'ChaleBot AI', message:welcome, lang:'Welcome'}]);
+      hasWelcomed=true;
+    }, 600);
+  }
 }
 async function loadMessages(){ const {data}=await supabaseClient.from('messages').select('*').order('created_at',{ascending:true}).limit(80); if(!data) return; document.getElementById('messages').innerHTML=''; data.forEach(m=>addMessageToUI(m)); scrollDown(); }
-function subscribe(){ supabaseClient.channel('natural-flow').on('postgres_changes',{event:'INSERT', schema:'public', table:'messages'}, p=>{ const m=p.new; if(m.username===currentUser) return; addMessageToUI(m); scrollDown(); if(m.username!=='ChaleBot AI') checkBot(m); }).subscribe(); }
+function subscribe(){ supabaseClient.channel('fixed-logic').on('postgres_changes',{event:'INSERT', schema:'public', table:'messages'}, p=>{ const m=p.new; if(m.username===currentUser) return; addMessageToUI(m); scrollDown(); if(m.username!=='ChaleBot AI') triggerBot(m); }).subscribe(); }
 function addMessageToUI(m){ const div=document.createElement('div'); const isMe=m.username===currentUser; const isBot=m.username==='ChaleBot AI'; div.className='msg'+(isMe?' me': isBot?' bot':''); const time=new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); div.innerHTML=`<div class="meta">${m.username}${isBot?' <span class="botBadge">BOT</span>':''} • ${time}</div><div class="text">${String(m.message).replace(/</g,'&lt;')}</div>`; document.getElementById('messages').appendChild(div); }
 function scrollDown(){ document.getElementById('messages').scrollTop=document.getElementById('messages').scrollHeight; }
-async function sendMsg(){ const inp=document.getElementById('messageInput'); const t=inp.value.trim(); if(!t) return; inp.value=''; await supabaseClient.from('messages').insert([{username:currentUser, message:t, lang:currentLang}]); addMessageToUI({username:currentUser, message:t, created_at:new Date().toISOString()}); scrollDown(); checkBot({message:t, username:currentUser}); }
-function checkBot(m){
+async function sendMsg(){ const inp=document.getElementById('messageInput'); const t=inp.value.trim(); if(!t) return; inp.value=''; await supabaseClient.from('messages').insert([{username:currentUser, message:t, lang:'en'}]); addMessageToUI({username:currentUser, message:t, created_at:new Date().toISOString()}); scrollDown(); triggerBot({message:t, username:currentUser}); }
+function triggerBot(m){
   if(m.username==='ChaleBot AI') return;
-  // show typing...
-  const typing=document.getElementById('typing'); typing.style.display='block';
+  document.getElementById('typing').style.display='block';
   setTimeout(async()=>{
-    typing.style.display='none';
-    let reply=naturalAI(m.message, currentLang);
+    document.getElementById('typing').style.display='none';
+    let reply = naturalHumanAI(m.message);
     await supabaseClient.from('messages').insert([{username:'ChaleBot AI', message:reply, lang:'Natural'}]);
-    // UI will add via subscribe, but add here too for sender
-    addMessageToUI({username:'ChaleBot AI', message:reply, created_at:new Date().toISOString()});
-    scrollDown(); speakText(reply);
-  }, 1000 + Math.random()*800);
+  }, 900);
 }
 </script>
 </body>
