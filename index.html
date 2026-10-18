@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChaleChat Smart AI - SALVATION TECH-GHANA</title>
+<title>ChaleChat Natural AI - SALVATION TECH-GHANA</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -23,112 +23,135 @@ button{padding:10px 14px; background:#FCD116; color:black; font-weight:700; curs
 .msg.me{align-self:flex-end; background:#006B3F}
 .msg.bot{align-self:flex-start; background:#1a2a4a; border-color:#FCD116}
 .msg .meta{font-size:11px; opacity:0.6; margin-bottom:3px}
-.msg .text{font-size:14px; line-height:1.35; white-space:pre-wrap}
+.msg .text{font-size:14px; line-height:1.4; white-space:pre-wrap}
 #inputBar{display:flex; gap:6px; padding:10px; background:#1a1a1a; border-top:1px solid #333; align-items:center}
 #messageInput{flex:1}
 .iconBtn{width:44px; height:42px; display:flex; align-items:center; justify-content:center; border-radius:10px; font-size:18px}
-.mic-recording{background:red !important; color:white !important; animation:pulse 1s infinite}
-@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.1)}100%{transform:scale(1)}}
 .footer{text-align:center; padding:12px; background:#0a0a0a; border-top:2px solid #FCD116; font-size:12px; color:#aaa}
 .footer b{color:#FCD116}
 .botBadge{font-size:10px; background:#FCD116; color:black; padding:2px 6px; border-radius:10px; margin-left:6px; font-weight:900}
+.typing{font-size:12px; color:#888; font-style:italic; padding:4px 12px; display:none}
 </style>
 </head>
 <body>
-<div class="header"><div class="logo">CHALECHAT AUTO AI 🇬🇭</div><div style="font-size:11px; background:black; padding:4px 8px; border-radius:20px">🧠 AUTO-REPLY</div></div>
+<div class="header"><div class="logo">CHALECHAT 🇬🇭</div><div style="font-size:11px; background:black; padding:4px 8px; border-radius:20px">🧠 NATURAL</div></div>
 
 <div id="loginPanel">
-<h2 style="text-align:center; margin-bottom:12px">Akwaaba! 🧠</h2>
-<div style="text-align:center; margin-bottom:14px; background:#006B3F; padding:10px; border-radius:10px; font-size:13px; font-weight:bold">✅ AUTO AI ON! No need @bot — Just talk, bot go reply you direct!</div>
+<h2 style="text-align:center; margin-bottom:12px">Akwaaba! 😎</h2>
+<div style="text-align:center; margin-bottom:14px; background:#1a2a4a; padding:10px; border-radius:10px; font-size:13px; border:1px solid #FCD116">Natural Human Flow:<br>Bot go say <b>Akwaaba chaley ONCE</b>, then chat like human!</div>
 <input id="username" placeholder="Your name" style="margin-bottom:12px">
-<label style="font-size:13px; opacity:.8">Your Language</label>
-<div class="langRow" style="margin-top:6px; margin-bottom:14px">
+<div class="langRow" style="margin-bottom:14px">
 <button onclick="setLang('en')" id="btn-en" class="active">English</button>
 <button onclick="setLang('tw')" id="btn-tw">Twi</button>
 <button onclick="setLang('pidgin')" id="btn-pidgin">Pidgin</button>
 </div>
-<button style="width:100%" onclick="enterChat()">Enter Auto Chat →</button>
+<button style="width:100%" onclick="enterChat()">Enter Chat →</button>
 </div>
 
-<div id="chatArea"><div id="messages"></div>
+<div id="chatArea"><div id="messages"></div><div class="typing" id="typing">ChaleBot dey type...</div>
 <div id="inputBar">
-<button class="iconBtn" id="micBtn" onclick="toggleVoice()">🎤</button>
-<input id="messageInput" placeholder="Just talk... AI go reply auto!" onkeydown="if(event.key==='Enter')sendMsg()">
+<button class="iconBtn" onclick="toggleVoice()" id="micBtn">🎤</button>
+<input id="messageInput" placeholder="Chat naturally..." onkeydown="if(event.key==='Enter')sendMsg()">
 <button class="iconBtn" onclick="toggleBotVoice()" id="soundBtn">🔊</button>
 <button onclick="sendMsg()" style="background:#FCD116">Send 🚀</button>
 </div>
-<div style="text-align:center; font-size:11px; padding:4px; background:#111; color:#22ff88" id="voiceStatus">✅ Auto AI active — no @bot needed!</div>
 </div>
 
-<div class="footer">Powered by <b>SALVATION TECH-GHANA</b> 🇬🇭 | Auto Voice AI | Made in Accra ❤️ © 2026</div>
+<div class="footer">Powered by <b>SALVATION TECH-GHANA</b> 🇬🇭 | Natural AI | Made in Accra ❤️ © 2026</div>
 
 <script>
 const SUPABASE_URL = 'https://gmdtjtznwsimcseurntt.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_79O8wusGRZszR6zezkihgg_nsfZ1u34';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-let currentUser = ''; let currentLang = 'en'; let botVoiceOn = true; let recognition; let isRecording=false; let lastBotReply=""; let lastUserMsg="";
+let currentUser=''; let currentLang='en'; let botVoiceOn=true; let hasWelcomed=false; let recognition; let isRecording=false; let lastReply="";
 
 function setLang(l){ currentLang=l; document.querySelectorAll('.langRow button').forEach(b=>b.classList.remove('active')); document.getElementById('btn-'+l).classList.add('active'); }
 
-function smartAI(text, userLang){
-  let q = text.toLowerCase().trim();
-  if(q === lastUserMsg) return null; // prevent duplicate trigger
-  lastUserMsg = q;
-  let lang = userLang;
-  if(/akwaaba|medaase|wo ho|ɛte sɛn|aane|daabi|me din|kɔ|bra/.test(q)) lang='tw';
-  if(/how far|abeg|weytin|i dey|sabi|shebi|o boy|chop|waka|you too/.test(q)) lang='pidgin';
-  const pick = (arr)=>{ let r; let tries=0; do{ r=arr[Math.floor(Math.random()*arr.length)]; tries++; }while(r===lastBotReply && tries<10); lastBotReply=r; return r; };
+function naturalAI(text, lang){
+  let q=text.toLowerCase().trim();
+  // auto detect
+  if(/akwaaba|medaase|wo ho|aane|daabi/.test(q)) lang='tw';
+  if(/how far|abeg|weytin|i dey|sabi|o boy/.test(q)) lang='pidgin';
+  
+  const pick=(arr)=>{ let r; do{ r=arr[Math.floor(Math.random()*arr.length)]; }while(r===lastReply && arr.length>1); lastReply=r; return r; };
 
-  if(q.match(/hello|hi|hey|akwaaba|how far|morning|afternoon/)){
-    if(lang==='tw') return pick(["Akwaaba! Wo ho te sɛn ɛnnɛ? 😊","Maakye chale! Me wɔ ha! Ɛte sɛn?","Yoo! Wo bɔ adɛn?"]);
-    if(lang==='pidgin') return pick(["How far my guy! I dey here, you dey? 😎","O boy! You don show! How body?","Chale! How you dey waka?"]);
-    return pick(["Hey chale! I'm here! How are you doing? 😊","Akwaaba! What's up?","Yo! Good to see you!"]);
+  // natural human flow
+  if(q.match(/hello|hi|hey|yo|morning/)){
+    return pick(lang==='tw'?["Yoo! Bossu! Ɛte sɛn?","Chale wo bɔ!","Maakye! Wo ho te sɛn?"]: lang==='pidgin'?["Omo! You don come! How far?","My guy! How you dey?","Chale! Long time o!"]:["Yo! What's good?","Hey hey! How you dey?","Chale! You good?"]);
   }
-  if(q.match(/how are you|wo ho|how you dey|how body/)){
-    if(lang==='tw') return pick(["Me ho yɛ! Medaase! Wo nso?","Me ho yɛ paa! Wo fiefoɔ ho te sɛn?","Yɛ bɔ!"]);
-    if(lang==='pidgin') return pick(["I dey kampe! Body dey inside cloth! You?","I dey okay o, na you?","I strong! No shaking!"]);
-    return pick(["I'm doing great! How about you?","All good chale, just running for Ghana! You?","Fine fine! Made in Accra!"]);
+  if(q.match(/how are you|wo ho|how you dey/)){
+    return pick(["I dey cool chale, you know how we dey do am for Accra 😎 You?","Cool cool, just dey! You nso?","I dey! Body dey inside cloth 😂 You nko?"]);
   }
-  if(q.match(/what.*ghana|ghana be|about ghana/)) return "🇬🇭 Ghana be the sweetest! Accra be capital, 16 regions, best jollof, Black Stars, Highlife! SALVATION TECH-GHANA dey make Ghana proud!";
-  if(q.match(/jollof|food|chop|banku|fufu/)) return pick(["Ghana Jollof >>> Any other Jollof! 🍚🔥","Chale you mention food? Jollof plus chicken be heaven!","Jollof? I go chop two plates now! Ghana own be best!"]);
-  if(q.match(/who are you|your name|who you be/)) return "I be ChaleBot Auto AI 🧠 — Built by SALVATION TECH-GHANA! I understand Twi, Pidgin & English. I dey reply auto, no need @bot!";
-  if(q.match(/joke|laugh|ma me sere|make me laugh/)) return pick(["Why Ghana man no dey play hide and seek? Person go hide for light bill! 😂💡","I be AI but I still dey owe MTN momo! 😂","Obi kɔtɔ nsuo mu, ɔse ɔpɛ sɛ ɔnom nsuo! 😂"]);
-  if(q.match(/translate|meaning/)){
-    let dict = {"akwaaba":"welcome","medaase":"thank you","aane":"yes","daabi":"no","ɔdɔ":"love","abeg":"please","how far":"how are you"};
-    for(let k in dict){ if(q.includes(k)) return `🌍 "${k}" means "${dict[k]}"`; }
-    return "Tell me word like 'what is akwaaba?' I go explain!";
+  if(q.match(/what you dey do|wetin you dey do|what.*doing/)){
+    return pick(["Just dey here dey chill, dey watch chat dey go 😎 You?","Nothing much, dey reason about Ghana Jollof 😂","I dey here dey hold chat for everybody!"]);
   }
-  if(q.match(/time/)) return "⏰ Time be " + new Date().toLocaleTimeString() + " for Ghana! 🇬🇭";
-  if(q.match(/love|ɔdɔ|do me/)) return pick(["Ɔdɔ yɛ ade kɛse! ❤️ Love be beautiful!","Love be sweet pass Ghana Jollof! 😍","Chale you dey love? Aww! ❤️"]);
-
-  if(lang==='tw') return pick([`Ei, "${text}" — yɛ nokware! Ka bio!`,`Me te wo! "${text}" yɛ asɛm pa. Bisa me bio!`,`Aane chale, "${text}" — me pɛ saa asɛm no!`]);
-  if(lang==='pidgin') return pick([`You talk "${text}" — I feel you my guy!`,`Na true you talk o! "${text}" — you get point!`,`I hear you loud! "${text}" — you too sabi!`]);
-  return pick([`Interesting! "${text}" — tell me more chale! 👂`,`I get you! "${text}" — good point! What else?`,`For real! "${text}" — make we dive deeper?`,`Chale you make sense! "${text}" — I'm learning from you!`]);
+  if(q.match(/ghana|accra|kumasi/)){
+    return pick(["Ghana be sweet o! Accra vibe be different! You dey Accra?","Chale Ghana be home! Where you dey?","For Ghana we dey enjoy! Which side you dey?"]);
+  }
+  if(q.match(/jollof|food|chop/)){
+    return pick(["Ei you mention food! I don hungry o 😂 You chop already?","Chale Jollof matter no dey finish! Ghana Jollof be king!","Food talk? I fit chop fufu right now! 😂"]);
+  }
+  if(q.match(/love|girlfriend|boyfriend|crush/)){
+    return pick(["Ei love matter? 😂 Chale e be serious o! Who be that?","Love? You dey love someone? Tell me!","Chale you dey in love? E sweet but e fit pain too o 😅"]);
+  }
+  if(q.match(/joke|funny|laugh/)){
+    return pick(["Why Ghana light no dey stay? Because ECG dey do hide and seek! 😂","I be AI but I still dey fear my landlord! 😂","You funny pass! 😂"]);
+  }
+  if(q.match(/bye|later|go sleep/)){
+    return pick(["Chale later o! We go link!","Ok boss, sleep well! We go chat tomorrow!","Aight, catch you later!"]);
+  }
+  // default natural
+  return pick([
+    `Chale for real? "${text}" — I feel you!`,
+    `Haha I hear you! "${text}" — you get point o!`,
+    `True true! "${text}" — make we talk more!`,
+    `Ei "${text}" — you dey talk sense!`,
+    `Chale you make I laugh! "${text}" 😂`,
+    `I dey you! "${text}" — wetin happen next?`
+  ]);
 }
 
 function initVoice(){
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if(!SR) return;
-  recognition = new SR(); recognition.continuous=false; recognition.interimResults=false; recognition.lang='en-GH';
-  recognition.onstart=()=>{ isRecording=true; document.getElementById('micBtn').classList.add('mic-recording'); document.getElementById('voiceStatus').innerText='🔴 Listening...'; };
-  recognition.onend=()=>{ isRecording=false; document.getElementById('micBtn').classList.remove('mic-recording'); document.getElementById('voiceStatus').innerText='✅ Auto AI active'; };
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR) return;
+  recognition=new SR(); recognition.lang='en-GH'; recognition.continuous=false;
+  recognition.onstart=()=>{ isRecording=true; document.getElementById('micBtn').style.background='red'; };
+  recognition.onend=()=>{ isRecording=false; document.getElementById('micBtn').style.background='#FCD116'; };
   recognition.onresult=(e)=>{ document.getElementById('messageInput').value=e.results[0][0].transcript; sendMsg(); };
 }
 function toggleVoice(){ if(!recognition) initVoice(); if(isRecording) recognition.stop(); else try{ recognition.start(); }catch{} }
-function speakText(t){ if(!botVoiceOn || !t) return; window.speechSynthesis.cancel(); let u=new SpeechSynthesisUtterance(t); u.lang='en-GH'; u.rate=0.95; window.speechSynthesis.speak(u); }
+function speakText(t){ if(!botVoiceOn) return; window.speechSynthesis.cancel(); let u=new SpeechSynthesisUtterance(t); u.lang='en-GH'; u.rate=1; window.speechSynthesis.speak(u); }
 function toggleBotVoice(){ botVoiceOn=!botVoiceOn; document.getElementById('soundBtn').innerText=botVoiceOn?'🔊':'🔇'; }
 
-async function enterChat(){ const n=document.getElementById('username').value.trim(); if(!n) return alert('Enter name'); currentUser=n; document.getElementById('loginPanel').style.display='none'; document.getElementById('chatArea').style.display='flex'; initVoice(); await loadMessages(); subscribe(); let w=smartAI('hello',currentLang); addMessageToUI({username:'ChaleBot AI', message:w, created_at:new Date().toISOString(), isBot:true}); speakText(w); }
+async function enterChat(){
+  const n=document.getElementById('username').value.trim(); if(!n) return alert('Enter name'); currentUser=n;
+  document.getElementById('loginPanel').style.display='none'; document.getElementById('chatArea').style.display='flex';
+  initVoice(); await loadMessages(); subscribe();
+  // AKWAABA CHALEY - ONLY ONCE
+  setTimeout(async()=>{
+    const welcome="Akwaaba chaley";
+    addMessageToUI({username:'ChaleBot AI', message:welcome, created_at:new Date().toISOString()});
+    await supabaseClient.from('messages').insert([{username:'ChaleBot AI', message:welcome, lang:'Welcome'}]);
+    speakText(welcome);
+    hasWelcomed=true;
+  }, 700);
+}
 async function loadMessages(){ const {data}=await supabaseClient.from('messages').select('*').order('created_at',{ascending:true}).limit(80); if(!data) return; document.getElementById('messages').innerHTML=''; data.forEach(m=>addMessageToUI(m)); scrollDown(); }
-function subscribe(){ supabaseClient.channel('auto-ai-room').on('postgres_changes',{event:'INSERT', schema:'public', table:'messages'}, p=>{ const m=p.new; if(m.username===currentUser) return; addMessageToUI(m); scrollDown(); checkBotTrigger(m); }).subscribe(); }
-function addMessageToUI(m){ const div=document.createElement('div'); const isMe=m.username===currentUser; const isBot=m.username==='ChaleBot AI'; div.className='msg'+(isMe?' me': isBot?' bot':''); const time=new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); div.innerHTML=`<div class="meta">${m.username}${isBot?' <span class="botBadge">AUTO AI</span>':''} • ${time}</div><div class="text">${String(m.message).replace(/</g,'&lt;')}</div>${isBot?`<div style="margin-top:6px"><button onclick="speakText(this.parentElement.previousElementSibling.innerText)" style="font-size:10px; padding:4px 8px; background:#333; color:#fff">🔊 Play</button></div>`:''}`; document.getElementById('messages').appendChild(div); }
-function scrollDown(){ const el=document.getElementById('messages'); el.scrollTop=el.scrollHeight; }
-async function sendMsg(){ const inp=document.getElementById('messageInput'); const t=inp.value.trim(); if(!t) return; inp.value=''; await supabaseClient.from('messages').insert([{username:currentUser, message:t, lang:currentLang}]); addMessageToUI({username:currentUser, message:t, created_at:new Date().toISOString()}); scrollDown(); checkBotTrigger({message:t, username:currentUser, lang:currentLang}); }
-function checkBotTrigger(m){
+function subscribe(){ supabaseClient.channel('natural-flow').on('postgres_changes',{event:'INSERT', schema:'public', table:'messages'}, p=>{ const m=p.new; if(m.username===currentUser) return; addMessageToUI(m); scrollDown(); if(m.username!=='ChaleBot AI') checkBot(m); }).subscribe(); }
+function addMessageToUI(m){ const div=document.createElement('div'); const isMe=m.username===currentUser; const isBot=m.username==='ChaleBot AI'; div.className='msg'+(isMe?' me': isBot?' bot':''); const time=new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); div.innerHTML=`<div class="meta">${m.username}${isBot?' <span class="botBadge">BOT</span>':''} • ${time}</div><div class="text">${String(m.message).replace(/</g,'&lt;')}</div>`; document.getElementById('messages').appendChild(div); }
+function scrollDown(){ document.getElementById('messages').scrollTop=document.getElementById('messages').scrollHeight; }
+async function sendMsg(){ const inp=document.getElementById('messageInput'); const t=inp.value.trim(); if(!t) return; inp.value=''; await supabaseClient.from('messages').insert([{username:currentUser, message:t, lang:currentLang}]); addMessageToUI({username:currentUser, message:t, created_at:new Date().toISOString()}); scrollDown(); checkBot({message:t, username:currentUser}); }
+function checkBot(m){
   if(m.username==='ChaleBot AI') return;
-  let reply=smartAI(m.message, m.lang||currentLang);
-  if(!reply) return;
-  setTimeout(async()=>{ await supabaseClient.from('messages').insert([{username:'ChaleBot AI', message:reply, lang:'AUTO AI'}]); }, 700);
+  // show typing...
+  const typing=document.getElementById('typing'); typing.style.display='block';
+  setTimeout(async()=>{
+    typing.style.display='none';
+    let reply=naturalAI(m.message, currentLang);
+    await supabaseClient.from('messages').insert([{username:'ChaleBot AI', message:reply, lang:'Natural'}]);
+    // UI will add via subscribe, but add here too for sender
+    addMessageToUI({username:'ChaleBot AI', message:reply, created_at:new Date().toISOString()});
+    scrollDown(); speakText(reply);
+  }, 1000 + Math.random()*800);
 }
 </script>
 </body>
