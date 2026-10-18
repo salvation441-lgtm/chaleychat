@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChaleChat Fixed - SALVATION TECH-GHANA</title>
+<title>ChaleChat - Chairman Edition - SALVATION TECH-GHANA</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -16,7 +16,8 @@ button{padding:10px 14px; background:#FCD116; color:black; font-weight:700; curs
 #loginPanel{max-width:420px; margin:40px auto; background:#1a1a1a; padding:24px; border-radius:16px; border:1px solid #333; width:90%}
 #chatArea{display:none; flex:1; flex-direction:column; overflow:hidden}
 #messages{flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:8px; background:#121212}
-.msg{background:#1e1e1e; padding:10px 12px; border-radius:12px; max-width:85%; border:1px solid #2a2a2a}
+.msg{background:#1e1e1e; padding:10px 12px; border-radius:12px; max-width:85%; border:1px solid #2a2a2a; animation:pop .2s}
+@keyframes pop{from{transform:scale(.95); opacity:0}to{transform:scale(1); opacity:1}}
 .msg.me{align-self:flex-end; background:#006B3F}
 .msg.bot{align-self:flex-start; background:#1a2a4a; border-color:#FCD116}
 .msg .meta{font-size:11px; opacity:0.6; margin-bottom:3px}
@@ -30,75 +31,61 @@ button{padding:10px 14px; background:#FCD116; color:black; font-weight:700; curs
 </style>
 </head>
 <body>
-<div class="header"><div class="logo">CHALECHAT FIXED 🇬🇭</div><div style="font-size:11px; background:black; padding:4px 8px; border-radius:20px">NATURAL</div></div>
+<div class="header"><div class="logo">CHALECHAT FIXED 🇬🇭</div><div style="font-size:11px; background:black; padding:4px 8px; border-radius:20px">ALWAYS REPLY</div></div>
 
 <div id="loginPanel">
-<h2 style="text-align:center; margin-bottom:12px">Akwaaba! Fix Logic!</h2>
-<div style="background:#006B3F; padding:10px; border-radius:10px; font-size:13px; margin-bottom:14px; text-align:center">✅ Fixed: No more repeating! Bot dey think like human now!</div>
-<input id="username" placeholder="Your name" style="margin-bottom:14px">
+<h2 style="text-align:center; margin-bottom:10px">Akwaaba! Final Fix!</h2>
+<div style="background:#006B3F; padding:8px; border-radius:8px; font-size:12px; margin-bottom:14px; text-align:center">✅ Now bot go reply to EVERYTHING — even "Chairman"! No more vex!</div>
+<input id="username" placeholder="Your name e.g. Kwame" style="margin-bottom:14px">
 <button style="width:100%" onclick="enterChat()">Enter Chat →</button>
 </div>
 
 <div id="chatArea"><div id="messages"></div><div class="typing" id="typing">ChaleBot dey type...</div>
 <div id="inputBar">
 <button class="iconBtn" id="micBtn" onclick="toggleVoice()">🎤</button>
-<input id="messageInput" placeholder="Chat naturally..." onkeydown="if(event.key==='Enter')sendMsg()">
+<input id="messageInput" placeholder="Type Chairman..." onkeydown="if(event.key==='Enter')sendMsg()">
 <button onclick="sendMsg()" style="background:#FCD116">Send 🚀</button>
 </div>
 </div>
 
-<div class="footer">Powered by <b>SALVATION TECH-GHANA</b> 🇬🇭 | Natural AI | Made in Accra © 2026</div>
+<div class="footer">Powered by <b>SALVATION TECH-GHANA</b> 🇬🇭 | Always Reply AI | Made in Accra © 2026</div>
 
 <script>
 const SUPABASE_URL = 'https://gmdtjtznwsimcseurntt.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_79O8wusGRZszR6zezkihgg_nsfZ1u34';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-let currentUser=''; let lastBotReply=''; let recognition; let isRecording=false; let hasWelcomed=false;
+let currentUser=''; let lastReply=''; let hasWelcomed=false; let recognition; let isRecording=false;
 
-function naturalHumanAI(text){
-  let q = text.toLowerCase().trim();
-  
-  // SHORT LAUGH / REACTIONS - MUST NOT QUOTE!
-  if(['haha','hehe','lol','lmao','😂','🤣'].some(w=>q.includes(w))){
-    const replies = ["😂 Chale you dey laugh me abi?","Haha ei 😂","Lol you funny!","😂😂 E sweet me!","Chale you go kill me with laugh!"];
-    let r; do{ r=replies[Math.floor(Math.random()*replies.length)]; }while(r===lastBotReply); lastBotReply=r; return r;
+function getReply(text){
+  let q=text.toLowerCase().trim();
+  const pickNoRepeat=(arr)=>{ let r, tries=0; do{ r=arr[Math.floor(Math.random()*arr.length)]; tries++; }while(r===lastReply && tries<5); lastReply=r; return r; };
+
+  // CHAIRMAN AND RESPECT NAMES - MUST REPLY!
+  if(q.match(/chairman|bossu|boss|chair|oga|chale/)){
+    return pickNoRepeat(["Chairman! Bossu! 😎 How far?","Chairman! You be boss! Weytin dey happen?","Bossu! Chairman! I dey respect! 😂","Chairman! How body? Everything cool?","Oga Chairman! You don show! 😎"]);
   }
-  if(['really','for real','eii','ei','wow','chale'].includes(q) || q.length <= 6){
-    const replies = ["For real? 😅","Ei chale!","Chale! 😳","Na true?","You serious? 😂","Eii!"];
-    let r; do{ r=replies[Math.floor(Math.random()*replies.length)]; }while(r===lastBotReply); lastBotReply=r; return r;
+  if(['haha','lol','lmao','😂','hehe'].some(w=>q.includes(w))){
+    return pickNoRepeat(["😂😂 Chairman you go kill me!","Haha ei! You funny pass!","Lol chale! 😂","You dey laugh me abi? 😅"]);
   }
-  if(q.match(/adey kool|i dey cool|i'm fine|fine|good|great/)){
-    const replies = ["Nice one! You dey enjoy! 😎","Chale you dey fresh! How Accra dey?","Cool cool! We dey inside!"];
-    let r; do{ r=replies[Math.floor(Math.random()*replies.length)]; }while(r===lastBotReply); lastBotReply=r; return r;
+  if(q.length<=6){
+    return pickNoRepeat(["Ei? 😅","For real?","Chale!","Na wa o!","You say wetin? 😂","Boss?"]);
   }
-  if(q.match(/how are you|wo ho te sɛn|how you dey/)){
-    return "I dey cool chale! Body dey inside cloth 😎 You nso?";
+  if(q.match(/vex|angry|upset/)){
+    return "Chale no vex! 😅 I dey here now! I no go ghost you again! Make we laugh small!";
   }
-  if(q.match(/jollof|food|chop|hungry/)){
-    return "Ghana Jollof be king o! 🍚🔥 You chop already?";
+  if(q.match(/adey kool|fine|cool|good/)){
+    return "Nice! Chairman dey cool! 😎 Accra how for there?";
   }
-  if(q.match(/love|crush|babe/)){
-    return "Ei love matter? 😅 Who be that?";
+  if(q.match(/how are you|how you dey/)){
+    return "I dey! Chairman, I dey! You nso?";
   }
-  if(q.match(/bye|sleep|later/)){
-    return "Aight chale, we go link later! ✌️";
-  }
-  // Long messages - natural without quoting
-  const longReplies = [
-    "Chale I feel you! That be true talk!",
-    "You get point o! For real!",
-    "Ei that be deep o! Tell me more!",
-    "Chale you dey talk sense! No lie!",
-    "Hmm interesting! What you think we for do?",
-    "True true! Accra life be like that!",
-    "I hear you chale! We dey learn everyday!"
-  ];
-  let r; do{ r=longReplies[Math.floor(Math.random()*longReplies.length)]; }while(r===lastBotReply); lastBotReply=r; return r;
+  // default for any other thing
+  return pickNoRepeat(["Chale I dey you! You get point!","True talk Chairman!","Ei that be deep! Tell me more!","Bossu you dey talk sense!","I hear you Chairman! We dey learn!","Haha Chairman! That be one! 😂"]);
 }
 
 function initVoice(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SR) return;
-  recognition=new SR(); recognition.lang='en-GH'; recognition.continuous=false;
+  recognition=new SR(); recognition.lang='en-GH';
   recognition.onstart=()=>{ isRecording=true; document.getElementById('micBtn').style.background='red'; };
   recognition.onend=()=>{ isRecording=false; document.getElementById('micBtn').style.background='#FCD116'; };
   recognition.onresult=(e)=>{ document.getElementById('messageInput').value=e.results[0][0].transcript; sendMsg(); };
@@ -110,26 +97,30 @@ async function enterChat(){
   document.getElementById('loginPanel').style.display='none'; document.getElementById('chatArea').style.display='flex';
   initVoice(); await loadMessages(); subscribe();
   if(!hasWelcomed){
-    setTimeout(async()=>{
-      const welcome="Akwaaba chaley";
-      await supabaseClient.from('messages').insert([{username:'ChaleBot AI', message:welcome, lang:'Welcome'}]);
-      hasWelcomed=true;
-    }, 600);
+    const w="Akwaaba chaley"; addMessageToUI({username:'ChaleBot AI', message:w, created_at:new Date().toISOString()}); scrollDown();
+    hasWelcomed=true; try{ await supabaseClient.from('messages').insert([{username:'ChaleBot AI', message:w}]); }catch{}
   }
 }
-async function loadMessages(){ const {data}=await supabaseClient.from('messages').select('*').order('created_at',{ascending:true}).limit(80); if(!data) return; document.getElementById('messages').innerHTML=''; data.forEach(m=>addMessageToUI(m)); scrollDown(); }
-function subscribe(){ supabaseClient.channel('fixed-logic').on('postgres_changes',{event:'INSERT', schema:'public', table:'messages'}, p=>{ const m=p.new; if(m.username===currentUser) return; addMessageToUI(m); scrollDown(); if(m.username!=='ChaleBot AI') triggerBot(m); }).subscribe(); }
+async function loadMessages(){ try{ const {data}=await supabaseClient.from('messages').select('*').order('created_at',{ascending:true}).limit(60); if(!data) return; document.getElementById('messages').innerHTML=''; data.forEach(m=>addMessageToUI(m)); scrollDown(); }catch{} }
+function subscribe(){ try{ supabaseClient.channel('always-reply').on('postgres_changes',{event:'INSERT', schema:'public', table:'messages'}, p=>{ const m=p.new; if(m.username===currentUser) return; if(document.querySelectorAll('.msg').length>80) return; addMessageToUI(m); scrollDown(); }).subscribe(); }catch{} }
 function addMessageToUI(m){ const div=document.createElement('div'); const isMe=m.username===currentUser; const isBot=m.username==='ChaleBot AI'; div.className='msg'+(isMe?' me': isBot?' bot':''); const time=new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); div.innerHTML=`<div class="meta">${m.username}${isBot?' <span class="botBadge">BOT</span>':''} • ${time}</div><div class="text">${String(m.message).replace(/</g,'&lt;')}</div>`; document.getElementById('messages').appendChild(div); }
-function scrollDown(){ document.getElementById('messages').scrollTop=document.getElementById('messages').scrollHeight; }
-async function sendMsg(){ const inp=document.getElementById('messageInput'); const t=inp.value.trim(); if(!t) return; inp.value=''; await supabaseClient.from('messages').insert([{username:currentUser, message:t, lang:'en'}]); addMessageToUI({username:currentUser, message:t, created_at:new Date().toISOString()}); scrollDown(); triggerBot({message:t, username:currentUser}); }
-function triggerBot(m){
-  if(m.username==='ChaleBot AI') return;
+function scrollDown(){ const el=document.getElementById('messages'); el.scrollTop=el.scrollHeight; }
+
+async function sendMsg(){
+  const inp=document.getElementById('messageInput'); const t=inp.value.trim(); if(!t) return; inp.value='';
+  // 1. Show your message instantly
+  addMessageToUI({username:currentUser, message:t, created_at:new Date().toISOString()}); scrollDown();
+  try{ await supabaseClient.from('messages').insert([{username:currentUser, message:t}]); }catch{}
+
+  // 2. Bot typing...
   document.getElementById('typing').style.display='block';
   setTimeout(async()=>{
     document.getElementById('typing').style.display='none';
-    let reply = naturalHumanAI(m.message);
-    await supabaseClient.from('messages').insert([{username:'ChaleBot AI', message:reply, lang:'Natural'}]);
-  }, 900);
+    let reply=getReply(t);
+    // Show reply INSTANTLY (no wait for supabase)
+    addMessageToUI({username:'ChaleBot AI', message:reply, created_at:new Date().toISOString()}); scrollDown();
+    try{ await supabaseClient.from('messages').insert([{username:'ChaleBot AI', message:reply}]); }catch{}
+  }, 800);
 }
 </script>
 </body>
