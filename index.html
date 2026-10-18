@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChaleChat Ghana - Powered by SALVATION TECH-GHANA</title>
+<title>ChaleChat + AI - Powered by SALVATION TECH-GHANA</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:system-ui; background:#0f0f0f; color:white; min-height:100vh; display:flex; flex-direction:column}
 .header{background:linear-gradient(90deg,#CE1126,#FCD116,#006B3F); padding:12px 16px; display:flex; justify-content:space-between; align-items:center}
-.logo{font-weight:900; font-size:22px; color:white}
+.logo{font-weight:900; font-size:20px}
 input,button{border-radius:10px; border:none; outline:none}
 input{padding:10px 12px; background:#222; color:white; border:1px solid #333; width:100%}
 button{padding:10px 16px; background:#FCD116; color:black; font-weight:700; cursor:pointer}
@@ -20,22 +20,26 @@ button{padding:10px 16px; background:#FCD116; color:black; font-weight:700; curs
 .langRow button.active{background:#006B3F; color:white}
 #chatArea{display:none; flex:1; flex-direction:column; overflow:hidden}
 #messages{flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:8px; background:#121212}
-.msg{background:#1e1e1e; padding:10px 12px; border-radius:12px; max-width:85%; border:1px solid #2a2a2a}
+.msg{background:#1e1e1e; padding:10px 12px; border-radius:12px; max-width:85%; border:1px solid #2a2a2a; position:relative}
 .msg.me{align-self:flex-end; background:#006B3F}
+.msg.bot{align-self:flex-start; background:#1a2a4a; border-color:#FCD116}
 .msg .meta{font-size:11px; opacity:0.6; margin-bottom:3px}
-.msg .text{font-size:15px; line-height:1.3; word-break:break-word}
-#inputBar{display:flex; gap:8px; padding:10px; background:#1a1a1a; border-top:1px solid #333}
+.msg .text{font-size:14px; line-height:1.35; word-break:break-word}
+.msg .actions{margin-top:6px; display:flex; gap:6px}
+.msg .actions button{font-size:10px; padding:4px 8px; background:#333; color:#ccc}
+#inputBar{display:flex; gap:6px; padding:10px; background:#1a1a1a; border-top:1px solid #333; align-items:center}
 #messageInput{flex:1}
-.small{font-size:12px; opacity:.7; text-align:center; margin:6px}
-.footer{text-align:center; padding:16px; background:#0a0a0a; border-top:2px solid #FCD116; font-size:13px; color:#aaa; letter-spacing:0.5px; margin-top:auto}
+.footer{text-align:center; padding:12px; background:#0a0a0a; border-top:2px solid #FCD116; font-size:12px; color:#aaa}
 .footer b{color:#FCD116}
+.botBadge{font-size:10px; background:#FCD116; color:black; padding:2px 6px; border-radius:10px; margin-left:6px; font-weight:900}
 </style>
 </head>
 <body>
-<div class="header"><div class="logo">CHALECHAT 🇬🇭</div><div style="font-size:12px; background:black; padding:4px 8px; border-radius:20px">● LIVE</div></div>
+<div class="header"><div class="logo">CHALECHAT + AI 🇬🇭</div><div style="font-size:11px; background:black; padding:4px 8px; border-radius:20px">🤖 CHALEBOT LIVE</div></div>
 
 <div id="loginPanel">
-<h2 style="text-align:center; margin-bottom:16px">Akwaaba! Chale enter 😎</h2>
+<h2 style="text-align:center; margin-bottom:12px">Akwaaba! Chale enter 😎</h2>
+<div class="small" style="text-align:center; margin-bottom:14px; background:#1a2a4a; padding:8px; border-radius:10px; border:1px solid #FCD116">🤖 New: ChaleBot AI go answer you for Twi, Pidgin, English! Type <b>@bot</b> to talk to AI</div>
 <div class="row"><input id="username" placeholder="Your name (e.g. Kwesi)"></div>
 <div class="row"><label style="font-size:13px; opacity:.8">Choose Language</label>
 <div class="langRow">
@@ -44,27 +48,86 @@ button{padding:10px 16px; background:#FCD116; color:black; font-weight:700; curs
 <button onclick="setLang('pidgin')" id="btn-pidgin">Pidgin</button>
 </div></div>
 <button style="width:100%; margin-top:8px" onclick="enterChat()">Enter Chat →</button>
-<div class="small">Your messages go live for everyone in Ghana 🌍</div>
 </div>
 
-<div id="chatArea"><div id="messages"></div><div id="inputBar"><input id="messageInput" placeholder="Type message... Kakraka?" onkeydown="if(event.key==='Enter')sendMsg()"><button onclick="sendMsg()">Send 🚀</button></div></div>
+<div id="chatArea"><div id="messages"></div><div id="inputBar"><input id="messageInput" placeholder="Type @bot for AI, or chat..." onkeydown="if(event.key==='Enter')sendMsg()"><button onclick="askBot()">🤖</button><button onclick="sendMsg()">Send 🚀</button></div></div>
 
-<div class="footer">
-Powered by <b>SALVATION TECH-GHANA</b> 🇬🇭 | Made in Accra with ❤️ | © 2026 All Rights Reserved
-</div>
+<div class="footer">Powered by <b>SALVATION TECH-GHANA</b> 🇬🇭 | AI by ChaleBot | Made in Accra with ❤️ © 2026</div>
 
 <script>
 const SUPABASE_URL = 'https://gmdtjtznwsimcseurntt.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_79O8wusGRZszR6zezkihgg_nsfZ1u34';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let currentUser = ''; let currentLang = 'en';
+
+// === CHALEBOT AI KNOWLEDGE ===
+const twiDict = {"akwaaba":"welcome","how are you":"wo ho te sɛn","maakye":"good morning","maaha":"good afternoon","maadwo":"good evening","medaase":"thank you","yɛfrɛ wo sɛn":"what is your name","me din de":"my name is","ɔdɔ":"love","kɔ":"go","bra":"come","di":"eat","da":"sleep","aane":"yes","daabi":"no","chale":"friend","kakra":"small small"};
+const pidginDict = {"how far":"how are you","i dey":"i am fine","weytin dey happen":"what is happening","you too much":"you are great","abeg":"please","chop":"eat","waka":"go","how you dey":"how are you","i no understand":"i don't understand"};
+
+function chaleBotAI(text, userLang){
+  text = text.toLowerCase();
+  // greetings
+  if(text.includes("akwaaba")||text.includes("hello")||text.includes("hi")||text.includes("how far")){
+    if(userLang==='tw') return "Akwaaba chale! Wo ho te sɛn? Me ne ChaleBot, me tumi kasa Twi, Pidgin ne English nyinaa! Wo pɛ sɛ me boa wo dɛn?";
+    if(userLang==='pidgin') return "How far chale! I be ChaleBot, I sabi speak Pidgin, Twi and English. How I fit help you?";
+    return "Akwaaba chale! I'm ChaleBot 🤖 I speak Twi, Pidgin & English! How can I help you today? Try: 'translate hello to twi' or 'what is Ghana?'";
+  }
+  if(text.includes("translate")){
+    for(let k in twiDict){ if(text.includes(k)) return `Translation: "${k}" → "${twiDict[k]}" (Twi)`;
+    }
+    return "I fit translate! Try: 'what is akwaaba' or 'how are you in twi' or 'translate i dey to english'";
+  }
+  if(text.includes("ghana")) return userLang==='tw' ? "Ghana yɛ asase pa! Yɛ wɔ Nkran, Kumasi, Takoradi! SALVATION TECH-GHANA na ɛyɛ ChaleChat yi!" : userLang==='pidgin' ? "Ghana na we country! Accra be capital, we get jollof wey sweet pass! SALVATION TECH-GHANA build this app!" : "Ghana is the best! 🇬🇭 Accra is capital, we have rich culture, Black Stars, jollof! Built by SALVATION TECH-GHANA in Accra!";
+  if(text.includes("who are you")||text.includes("what are you")) return "I be ChaleBot 🤖, AI agent for ChaleChat! Built by SALVATION TECH-GHANA. I understand Twi, Pidgin & English. Mention @bot anytime!";
+  if(text.includes("love")||text.includes("ɔdɔ")) return "Ɔdɔ yɛ ade kɛse! Love is beautiful chale ❤️";
+  if(text.includes("jollof")) return "Ghana Jollof be the best! No argument! 🇬🇭🍚🔥 Nigeria jollof no reach!";
+  if(text.includes("help")) return "I fit help: 1) Translate Twi/Pidgin/English 2) Answer about Ghana 3) Chat like human. Just type @bot + your question!";
+  // default smart reply in user's language
+  if(userLang==='tw') return `Aane chale, me te "${text}". Kɔ so! Ka Twi anaa English kyerɛ me na me mmoa wo. Wobɛ ka "@bot how are you in twi"?`;
+  if(userLang==='pidgin') return `I hear you chale: "${text}". Talk to me! I sabi everything. Try "@bot wetin be Ghana?"`;
+  return `I feel you! "${text}" — tell me more chale! I sabi Twi, Pidgin, English. Ask me anything about Ghana or ask me to translate!`;
+}
+
 function setLang(l){ currentLang=l; document.querySelectorAll('.langRow button').forEach(b=>b.classList.remove('active')); document.getElementById('btn-'+l).classList.add('active'); }
-async function enterChat(){ const name=document.getElementById('username').value.trim(); if(!name){ alert('Enter your name chale!'); return; } currentUser=name; document.getElementById('loginPanel').style.display='none'; document.getElementById('chatArea').style.display='flex'; await loadMessages(); subscribe(); }
-async function loadMessages(){ const { data } = await supabaseClient.from('messages').select('*').order('created_at',{ascending:true}).limit(100); if(!data) return; document.getElementById('messages').innerHTML=''; data.forEach(addMessageToUI); scrollDown(); }
-function subscribe(){ supabaseClient.channel('chalechat-room').on('postgres_changes',{event:'INSERT', schema:'public', table:'messages'}, p=>{ addMessageToUI(p.new); scrollDown(); }).subscribe(); }
-function addMessageToUI(m){ const div=document.createElement('div'); const isMe=m.username===currentUser; div.className='msg'+(isMe?' me':''); const time=new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); div.innerHTML=`<div class="meta">${m.username} • ${time}</div><div class="text">${m.message.replace(/</g,'&lt;')}</div>`; document.getElementById('messages').appendChild(div); }
+async function enterChat(){ const name=document.getElementById('username').value.trim(); if(!name){ alert('Enter your name chale!'); return; } currentUser=name; document.getElementById('loginPanel').style.display='none'; document.getElementById('chatArea').style.display='flex'; await loadMessages(); subscribe();
+ // welcome bot message
+ setTimeout(()=>{ addMessageToUI({username:'ChaleBot AI', message: chaleBotAI('hello', currentLang), created_at: new Date().toISOString(), isBot:true, lang:'AI'}, true); }, 800);
+}
+async function loadMessages(){ const { data } = await supabaseClient.from('messages').select('*').order('created_at',{ascending:true}).limit(100); if(!data) return; document.getElementById('messages').innerHTML=''; data.forEach(m=>addMessageToUI(m)); scrollDown(); }
+function subscribe(){ supabaseClient.channel('chalechat-room').on('postgres_changes',{event:'INSERT', schema:'public', table:'messages'}, p=>{ addMessageToUI(p.new); scrollDown(); if(p.new.username!==currentUser && p.new.username!=='ChaleBot AI'){ checkBotTrigger(p.new); } }).subscribe(); }
+
+function addMessageToUI(m, local=false){
+  const div=document.createElement('div'); const isMe=m.username===currentUser; const isBot=m.isBot || m.username==='ChaleBot AI';
+  div.className='msg'+(isMe?' me': isBot?' bot':'');
+  const time=new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  const botTag = isBot ? '<span class="botBadge">AI</span>' : '';
+  div.innerHTML=`<div class="meta">${m.username}${botTag} • ${time} ${m.lang?'• '+m.lang:''}</div><div class="text">${m.message.replace(/</g,'&lt;')}</div>${!isMe?`<div class="actions"><button onclick="translateMsg(this)">🌍 Translate</button><button onclick="replyBot(this)">🤖 Ask AI</button></div>`:''}`;
+  document.getElementById('messages').appendChild(div);
+}
 function scrollDown(){ const el=document.getElementById('messages'); el.scrollTop=el.scrollHeight; }
-async function sendMsg(){ const inp=document.getElementById('messageInput'); const text=inp.value.trim(); if(!text) return; inp.value=''; await supabaseClient.from('messages').insert([{username: currentUser, message: text, lang: currentLang}]); }
+async function sendMsg(){ const inp=document.getElementById('messageInput'); const text=inp.value.trim(); if(!text) return; inp.value=''; await supabaseClient.from('messages').insert([{username: currentUser, message: text, lang: currentLang}]); checkBotTrigger({message:text, username:currentUser, lang:currentLang}); }
+function askBot(){ const inp=document.getElementById('messageInput'); if(!inp.value.trim()){ inp.value='@bot hello '; inp.focus(); return; } if(!inp.value.toLowerCase().includes('@bot')) inp.value='@bot '+inp.value; sendMsg(); }
+
+function checkBotTrigger(m){
+  if(m.message.toLowerCase().includes('@bot') || m.message.toLowerCase().includes('@chale') || m.username===currentUser){
+    if(m.message.toLowerCase().includes('@bot') || Math.random()>0.7 && m.message.includes('?')){
+      const reply = chaleBotAI(m.message.replace('@bot',''), m.lang||currentLang);
+      setTimeout(async ()=>{
+        await supabaseClient.from('messages').insert([{username: 'ChaleBot AI', message: reply, lang: 'AI'}]);
+      }, 900);
+    }
+  }
+}
+function translateMsg(btn){
+  const text = btn.parentElement.previousElementSibling.innerText;
+  let translated = text;
+  // simple auto detect and translate
+  if(/akwaaba|medaase|wo ho/i.test(text)) translated = "Translation → English: " + (twiDict[text.toLowerCase()] || "Twi greeting / thanks");
+  else if(/how far|i dey|abeg/i.test(text)) translated = "Pidgin → English: " + (pidginDict[text.toLowerCase()] || "Pidgin - informal Ghana/Nigeria English");
+  else translated = "🌍 Twi: " + text + " → (Try ask ChaleBot: @bot translate "+text+" to twi)";
+  const div=document.createElement('div'); div.className='msg bot'; div.innerHTML=`<div class="meta">ChaleBot AI • Translate</div><div class="text">${translated}</div>`;
+  document.getElementById('messages').appendChild(div); scrollDown();
+}
 </script>
 </body>
 </html>
