@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ChaleChat FIXED - No Ghost</title>
+<title>ChaleChat V2 - GLOBAL BRAIN</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#0a0a0a;color:white;font-family:system-ui;display:flex;flex-direction:column;height:100vh}
-.header{background:linear-gradient(90deg,#CE1126,#FCD116,#006B3F);padding:14px;text-align:center;font-weight:900}
+.header{background:linear-gradient(90deg,#CE1126,#FCD116,#006B3F);padding:14px;text-align:center;font-weight:900;font-size:14px}
 #msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
-.msg{padding:10px 14px;border-radius:18px;max-width:80%;line-height:1.4}
-.bot{background:#222;border:1px solid #FCD116;align-self:flex-start}
+.msg{padding:12px 14px;border-radius:18px;max-width:85%;line-height:1.4;font-size:14px}
+.bot{background:#1a1a2e;border:1px solid #FCD116;align-self:flex-start}
 .me{background:#006B3F;align-self:flex-end}
 #bar{display:flex;gap:8px;padding:12px;background:#111;border-top:1px solid #333}
 #bar input{flex:1;padding:14px;border-radius:12px;border:1px solid #333;background:#222;color:white}
@@ -18,42 +18,64 @@ body{background:#0a0a0a;color:white;font-family:system-ui;display:flex;flex-dire
 </style>
 </head>
 <body>
-<div class="header">CHALECHAT FIXED ✅ NO GHOST - SALVATION TECH-GHANA</div>
-<div id="msgs"><div class="msg bot">Akwaaba chaley — I dey! Type Hello, I go reply instant! 🇬🇭</div></div>
+<div class="header">CHALECHAT V2 ✅ GLOBAL BRAIN - SALVATION TECH-GHANA 🇬🇭</div>
+<div id="msgs"><div class="msg bot">Chale Kwame! V2 don load! Ask me ANYTHING — President, Regions, Science, I go answer! No ghost! 🇬🇭🚀</div></div>
 <div id="bar"><input id="txt" placeholder="Type Hello..." onkeypress="if(event.key==='Enter')doSend()"><button onclick="doSend()">Send 🚀</button></div>
 
 <script>
-// 100% LOCAL - NO FETCH - NO FAIL
 function add(text, who){
   var box=document.getElementById('msgs');
   var div=document.createElement('div');
   div.className='msg '+(who==='me'?'me':'bot');
-  div.textContent=text;
+  div.innerHTML=text;
   box.appendChild(div);
   box.scrollTop=box.scrollHeight;
 }
 function getReply(t){
-  t=t.toLowerCase();
-  if(t.includes('hello')||t.includes('hi')||t.includes('hey')) return "Hello Kwame! 😎 Chaley how for? I dey live now! No more ghosting!";
-  if(t.includes('how are you')) return "I dey cool! Body dey inside cloth! 😂 You?";
-  if(t.includes('who are you')) return "I be ChaleBot from SALVATION TECH-GHANA! Made in Ghana 🇬🇭";
-  if(t.includes('region')) return "Ghana get 16 regions o!";
-  if(t.includes('planet')) return "8 planets dey!";
-  return "I hear you: '"+t+"' — Talk more! I go reply every time now! No ghosting again!";
+  var q=t.toLowerCase();
+  // GREETINGS
+  if(q.match(/hello|hi|hey|akwaaba|chale/)) return "Hello Chairman! 😎 Akwaaba! How you dey? I be ChaleBot V2 — full global brain now!";
+  if(q.match(/how are you|how you dey/)) return "I dey cool waaa! Body dey inside cloth! 😂 You nso how you dey?";
+  
+  // GHANA PRESIDENT - UPDATED 2025-2026
+  if(q.includes('president') && q.includes('ghana')) return "🇬🇭 President of Ghana be <b>H.E. John Dramani Mahama</b>! He win 2024 election and sworn in January 7, 2025! Vice be Prof. Jane Naana Opoku-Agyemang — first female VP! Current as of 2026!";
+  if(q.includes('president') && q.includes('usa')) return "🇺🇸 USA President be Donald Trump — he win 2024 and start second term Jan 20, 2025!";
+  if(q.includes('president') && q.includes('nigeria')) return "🇳🇬 Nigeria President be Bola Ahmed Tinubu — since May 29, 2023!";
+  
+  // GHANA REGIONS
+  if(q.includes('region') && q.includes('ghana')) return "🇬🇭 Ghana get <b>16 regions</b> o!<br>1. Greater Accra (Accra)<br>2. Ashanti (Kumasi)<br>3. Eastern (Koforidua)<br>4. Central (Cape Coast)<br>5. Western (Sekondi-Takoradi)<br>6. Western North (Sefwi Wiawso)<br>7. Volta (Ho)<br>8. Oti (Dambai)<br>9. Northern (Tamale)<br>10. Savannah (Damongo)<br>11. North East (Nalerigu)<br>12. Upper East (Bolgatanga)<br>13. Upper West (Wa)<br>14. Bono (Sunyani)<br>15. Bono East (Techiman)<br>16. Ahafo (Goaso)";
+  if(q.includes('capital') && q.includes('ghana')) return "Capital of Ghana be <b>Accra</b>! 🇬🇭";
+  
+  // GLOBAL FACTS
+  if(q.includes('planet')) return "🌍 8 planets: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune! Pluto na dwarf planet now!";
+  if(q.includes('continent')) return "🌍 7 continents: Africa, Antarctica, Asia, Europe, North America, South America, Australia (Oceania)!";
+  if(q.includes('ocean')) return "🌊 5 oceans: Pacific, Atlantic, Indian, Southern, Arctic!";
+  if(q.includes('elon')) return "🚀 Elon Musk be CEO of Tesla, SpaceX, X (Twitter)! Richest man, from South Africa! He dey build rockets to Mars!";
+  if(q.includes('who are you')) return "I be <b>ChaleBot AI V2</b>! Built by SALVATION TECH-GHANA! 🇬🇭 Accra! I get Ghana brain + Global brain! No more ghosting!";
+  if(q.includes('salvation tech')) return "SALVATION TECH-GHANA 🇬🇭 be your company! You dey build ChaleChat! CEO Kwame! Accra, Ghana! 2026!";
+  
+  // COMMON
+  if(q.match(/what is your name|your name/)) return "My name be ChaleBot AI! Your Ghanaian AI friend! 🇬🇭";
+  if(q.match(/thank|tnx|thanks/)) return "You welcome Chairman! 🙏 Anything else?";
+  if(q.match(/lol|haha|😂|funny/)) return "😂😂 Chairman you dey make me laugh!";
+  if(q.match(/ebi true|true\?/)) return "Ebi true waaa! 100% true! ✅ You fit check Google!";
+  if(q.match(/ok/)) return "Ok Chairman! 👊 Weytin next?";
+  
+  // SMART FALLBACK - NOT DUMB
+  return "Chale you ask: <b>'"+t+"'</b> — Good question! 🤔<br><br>As V2 brain, I go try: For Ghana, we get 16 regions, President be John Mahama (2025). If you ask about planets, 8 dey. If you need specific answer, try ask like 'Who is president of Ghana' or 'Capital of Ghana' — I go answer sharp! What you want know more?";
 }
+
 function doSend(){
   var inp=document.getElementById('txt');
   var text=inp.value.trim();
   if(!text) return;
   inp.value='';
   add(text,'me');
-  // REPLY INSTANT - NO TIMEOUT FAIL
   setTimeout(function(){
     var reply=getReply(text);
     add(reply,'bot');
-  }, 300);
+  }, 400);
 }
-console.log("ChaleChat FIXED loaded - NO GHOST");
 </script>
 </body>
 </html>
