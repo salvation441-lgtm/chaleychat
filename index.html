@@ -2,80 +2,222 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>ChaleChat V2 - GLOBAL BRAIN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHALECHAT ROOMS 🇬🇭</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#0a0a0a;color:white;font-family:system-ui;display:flex;flex-direction:column;height:100vh}
-.header{background:linear-gradient(90deg,#CE1126,#FCD116,#006B3F);padding:14px;text-align:center;font-weight:900;font-size:14px}
-#msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
-.msg{padding:12px 14px;border-radius:18px;max-width:85%;line-height:1.4;font-size:14px}
-.bot{background:#1a1a2e;border:1px solid #FCD116;align-self:flex-start}
-.me{background:#006B3F;align-self:flex-end}
-#bar{display:flex;gap:8px;padding:12px;background:#111;border-top:1px solid #333}
-#bar input{flex:1;padding:14px;border-radius:12px;border:1px solid #333;background:#222;color:white}
-#bar button{padding:14px 20px;background:#FCD116;color:black;font-weight:900;border:none;border-radius:12px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+body{background:#0f1115;color:#fff;height:100vh;display:flex;flex-direction:column}
+.header{background:linear-gradient(90deg,#ce1126,#ffcc00,#006b3f);padding:12px 16px;display:flex;justify-content:space-between;font-weight:900;align-items:center}
+.roomBar{display:flex;gap:8px;padding:10px;background:#12141c;overflow:auto;border-bottom:1px solid #222}
+.room{padding:8px 14px;border-radius:20px;border:1px solid #333;background:#1e212b;color:#ccc;white-space:nowrap;cursor:pointer;font-size:13px}
+.room.active{background:#ffcc00;color:#000;font-weight:800;border-color:#ffcc00}
+.tabs{display:flex;gap:8px;padding:8px;background:#1a1d25;overflow:auto}
+.tab{padding:6px 12px;border-radius:20px;border:none;cursor:pointer;background:#2a2e3a;color:#ccc;white-space:nowrap;font-size:12px}
+.tab.active{background:#2a2e3a;color:#ffcc00;font-weight:700;border:1px solid #ffcc00}
+.chat{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.msg{background:#1e2a1e;border-radius:18px;padding:12px 14px;max-width:88%;align-self:flex-start;border:1px solid rgba(255,255,255,.1);cursor:pointer}
+.msg.me{align-self:flex-end;background:#2a3a2a;border:1px solid #ffcc00}
+.avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(to bottom,#ce1126 33%,#ffcc00 33%,#ffcc00 66%,#006b3f 66%);display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:12px;border:2px solid #fff}
+.replyQuote{background:rgba(255,204,0,.15);border-left:3px solid #ffcc00;padding:6px 8px;border-radius:8px;margin-bottom:6px;font-size:12px;opacity:.8}
+.inputBar{display:flex;gap:6px;padding:10px;background:#1a1d25;align-items:center;position:sticky;bottom:0}
+.inputBar input{flex:1;padding:12px;border-radius:24px;border:none;background:#2a2e3a;color:#fff;outline:none;min-width:0}
+.iconBtn{width:42px;height:42px;border-radius:50%;border:none;background:#2a2e3a;font-size:18px;cursor:pointer;flex-shrink:0}
+.btnSend{width:46px;height:42px;border-radius:50%;border:none;background:#ffcc00;font-weight:900;cursor:pointer;flex-shrink:0}
+#authBox{position:fixed;inset:0;background:#0f1115;display:flex;align-items:center;justify-content:center;z-index:99}
+.authCard{background:#1a1d25;padding:24px;border-radius:20px;width:100%;max-width:360px;display:flex;flex-direction:column;gap:12px}
+.authCard input{padding:12px;border-radius:10px;border:none;background:#2a2e3a;color:#fff}
+.btnYellow{padding:12px;border-radius:10px;border:none;background:#ffcc00;font-weight:700;cursor:pointer}
+.btnGhost{padding:12px;border-radius:10px;background:transparent;border:1px solid #444;color:#fff;cursor:pointer}
+.actBtns{display:none;gap:6px;margin-top:8px}
+.msg.showMenu .actBtns{display:flex}
+.smallBtn{background:#2a2e3a;color:#fff;border:none;padding:6px 10px;border-radius:8px;font-size:11px;cursor:pointer}
+.smallBtn.del{background:#ce1126}
+#replyPreview{display:none;background:#1a1d25;border-left:4px solid #ffcc00;padding:8px 12px;margin:0 12px;border-radius:8px;justify-content:space-between;align-items:center}
+#niceModal,#editModal,#roomModal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(6px)}
+#niceModal.show,#editModal.show,#roomModal.show{display:flex}
+.modalBox{background:#1e212b;border:1px solid rgba(255,204,0,.3);border-radius:24px;padding:24px;width:90%;max-width:340px;text-align:center}
+.modalInput{width:100%;padding:12px;border-radius:12px;border:none;background:#2a2e3a;color:#fff;margin-bottom:12px;outline:none}
+.mBtn{flex:1;padding:12px;border-radius:12px;border:none;font-weight:700;cursor:pointer}
+.mCancel{background:#2a2e3a;color:#fff}
+.mDelete{background:#ce1126;color:#fff}
+.mSave{background:#ffcc00;color:#000}
+.hint{font-size:10px;opacity:.5;text-align:center;padding:4px}
+#uploadStatus,#recStatus{display:none;text-align:center;padding:6px;font-size:12px}
+#uploadStatus{background:#006b3f;color:#fff}
+#recStatus{background:#ce1126;color:#fff}
 </style>
 </head>
 <body>
-<div class="header">CHALECHAT V2 ✅ GLOBAL BRAIN - SALVATION TECH-GHANA 🇬🇭</div>
-<div id="msgs"><div class="msg bot">Chale Kwame! V2 don load! Ask me ANYTHING — President, Regions, Science, I go answer! No ghost! 🇬🇭🚀</div></div>
-<div id="bar"><input id="txt" placeholder="Type Hello..." onkeypress="if(event.key==='Enter')doSend()"><button onclick="doSend()">Send 🚀</button></div>
+<div class="header"><div>CHALECHAT 🇬🇭 ROOMS</div><div id="roomCount" style="font-size:11px;opacity:.8"></div></div>
+
+<!-- ROOM BAR -->
+<div class="roomBar" id="roomBar">
+<button class="room active" data-room="general"># General 🌍</button>
+<button class="room" data-room="bekwai"># Bekwai 🏠</button>
+<button class="room" data-room="kumasi"># Kumasi 🏙️</button>
+<button class="room" data-room="accra"># Accra 🌆</button>
+<button class="room" data-room="twi"># Twi 🗣️</button>
+<button class="room" data-room="music"># Music 🎵</button>
+<button class="room" id="addRoomBtn" style="border-style:dashed">+ New</button>
+</div>
+
+<div class="tabs">
+<button class="tab active" data-lang="en">🇬🇧 EN</button>
+<button class="tab" data-lang="tw">🇬🇭 Twi</button>
+<button class="tab" data-lang="pcm">🇳🇬 Pidgin</button>
+<button class="tab" data-lang="fr">🇫🇷 FR</button>
+</div>
+
+<div id="recStatus">🔴 Recording...</div>
+<div id="uploadStatus">⏳ Uploading...</div>
+<div class="hint">Rooms → Tap message for menu • 📎 File 📷 Photo 📹 Video</div>
+<div id="chat" class="chat"></div>
+
+<div id="replyPreview"><div><div style="font-size:11px;color:#ffcc00;font-weight:700" id="replyName"></div><div style="font-size:12px;opacity:.8" id="replyText"></div></div><button onclick="cancelReply()" style="background:none;border:none;color:#fff;font-size:18px">✕</button></div>
+
+<div class="inputBar">
+<input type="file" id="fileInput" hidden><input type="file" id="imgInput" accept="image/*" hidden><input type="file" id="vidInput" accept="video/*" hidden>
+<button class="iconBtn" onclick="fileInput.click()">📎</button>
+<button class="iconBtn" onclick="imgInput.click()">📷</button>
+<button class="iconBtn" onclick="vidInput.click()">📹</button>
+<button id="micBtn" class="iconBtn">🎤</button>
+<input id="msgInput" placeholder="Type in #general...">
+<button id="sendBtn" class="btnSend">➤</button>
+</div>
+
+<div id="authBox"><div class="authCard"><h2>CHALECHAT 🇬🇭</h2><input id="email" placeholder="Email"><input id="password" type="password" placeholder="Password"><button class="btnYellow" id="signupBtn">Create Account 🔥</button><button class="btnGhost" id="loginBtn">Login</button><p id="err" style="color:#ff6b6b;font-size:12px"></p></div></div>
+
+<div id="niceModal"><div class="modalBox"><div style="font-size:28px;margin-bottom:12px">🗑️</div><div style="font-weight:900;margin-bottom:8px">Delete this?</div><div style="opacity:.7;font-size:13px;margin-bottom:16px">Go delete forever. You sure? 🇬🇭</div><div style="display:flex;gap:10px"><button class="mBtn mCancel" onclick="closeModal()">Cancel</button><button class="mBtn mDelete" id="confirmDelBtn">Delete 🔥</button></div></div></div>
+<div id="editModal"><div class="modalBox"><div style="font-size:28px;margin-bottom:12px">✏️</div><div style="font-weight:900;margin-bottom:12px">Edit message</div><input id="editInput" class="modalInput"><div style="display:flex;gap:10px"><button class="mBtn mCancel" onclick="closeEdit()">Cancel</button><button class="mBtn mSave" id="confirmEditBtn">Save ✅</button></div></div></div>
+<div id="roomModal"><div class="modalBox"><div style="font-size:28px;margin-bottom:12px">➕</div><div style="font-weight:900;margin-bottom:12px">Create Room</div><input id="newRoomName" class="modalInput" placeholder="e.g. bekwai-vibes"><div style="display:flex;gap:10px"><button class="mBtn mCancel" onclick="roomModal.classList.remove('show')">Cancel</button><button class="mBtn mSave" id="createRoomBtn">Create 🚀</button></div></div></div>
 
 <script>
-function add(text, who){
-  var box=document.getElementById('msgs');
-  var div=document.createElement('div');
-  div.className='msg '+(who==='me'?'me':'bot');
-  div.innerHTML=text;
-  box.appendChild(div);
-  box.scrollTop=box.scrollHeight;
-}
-function getReply(t){
-  var q=t.toLowerCase();
-  // GREETINGS
-  if(q.match(/hello|hi|hey|akwaaba|chale/)) return "Hello Chairman! 😎 Akwaaba! How you dey? I be ChaleBot V2 — full global brain now!";
-  if(q.match(/how are you|how you dey/)) return "I dey cool waaa! Body dey inside cloth! 😂 You nso how you dey?";
-  
-  // GHANA PRESIDENT - UPDATED 2025-2026
-  if(q.includes('president') && q.includes('ghana')) return "🇬🇭 President of Ghana be <b>H.E. John Dramani Mahama</b>! He win 2024 election and sworn in January 7, 2025! Vice be Prof. Jane Naana Opoku-Agyemang — first female VP! Current as of 2026!";
-  if(q.includes('president') && q.includes('usa')) return "🇺🇸 USA President be Donald Trump — he win 2024 and start second term Jan 20, 2025!";
-  if(q.includes('president') && q.includes('nigeria')) return "🇳🇬 Nigeria President be Bola Ahmed Tinubu — since May 29, 2023!";
-  
-  // GHANA REGIONS
-  if(q.includes('region') && q.includes('ghana')) return "🇬🇭 Ghana get <b>16 regions</b> o!<br>1. Greater Accra (Accra)<br>2. Ashanti (Kumasi)<br>3. Eastern (Koforidua)<br>4. Central (Cape Coast)<br>5. Western (Sekondi-Takoradi)<br>6. Western North (Sefwi Wiawso)<br>7. Volta (Ho)<br>8. Oti (Dambai)<br>9. Northern (Tamale)<br>10. Savannah (Damongo)<br>11. North East (Nalerigu)<br>12. Upper East (Bolgatanga)<br>13. Upper West (Wa)<br>14. Bono (Sunyani)<br>15. Bono East (Techiman)<br>16. Ahafo (Goaso)";
-  if(q.includes('capital') && q.includes('ghana')) return "Capital of Ghana be <b>Accra</b>! 🇬🇭";
-  
-  // GLOBAL FACTS
-  if(q.includes('planet')) return "🌍 8 planets: Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune! Pluto na dwarf planet now!";
-  if(q.includes('continent')) return "🌍 7 continents: Africa, Antarctica, Asia, Europe, North America, South America, Australia (Oceania)!";
-  if(q.includes('ocean')) return "🌊 5 oceans: Pacific, Atlantic, Indian, Southern, Arctic!";
-  if(q.includes('elon')) return "🚀 Elon Musk be CEO of Tesla, SpaceX, X (Twitter)! Richest man, from South Africa! He dey build rockets to Mars!";
-  if(q.includes('who are you')) return "I be <b>ChaleBot AI V2</b>! Built by SALVATION TECH-GHANA! 🇬🇭 Accra! I get Ghana brain + Global brain! No more ghosting!";
-  if(q.includes('salvation tech')) return "SALVATION TECH-GHANA 🇬🇭 be your company! You dey build ChaleChat! CEO Kwame! Accra, Ghana! 2026!";
-  
-  // COMMON
-  if(q.match(/what is your name|your name/)) return "My name be ChaleBot AI! Your Ghanaian AI friend! 🇬🇭";
-  if(q.match(/thank|tnx|thanks/)) return "You welcome Chairman! 🙏 Anything else?";
-  if(q.match(/lol|haha|😂|funny/)) return "😂😂 Chairman you dey make me laugh!";
-  if(q.match(/ebi true|true\?/)) return "Ebi true waaa! 100% true! ✅ You fit check Google!";
-  if(q.match(/ok/)) return "Ok Chairman! 👊 Weytin next?";
-  
-  // SMART FALLBACK - NOT DUMB
-  return "Chale you ask: <b>'"+t+"'</b> — Good question! 🤔<br><br>As V2 brain, I go try: For Ghana, we get 16 regions, President be John Mahama (2025). If you ask about planets, 8 dey. If you need specific answer, try ask like 'Who is president of Ghana' or 'Capital of Ghana' — I go answer sharp! What you want know more?";
-}
+const firebaseConfig={apiKey:"AIzaSyB0s8MwwApN2Y3nbuD9z3sujFYLUyrIB14",authDomain:"chalechat-aa1b8.firebaseapp.com",projectId:"chalechat-aa1b8",storageBucket:"chalechat-aa1b8.appspot.com",messagingSenderId:"123456789",appId:"1:123456789:web:abc123"};
+try{firebase.initializeApp(firebaseConfig);}catch(e){}
+const auth=firebase.auth();const db=firebase.firestore();
+let currentUser=null,pendingDeleteId=null,pendingEditId=null,replyTo=null,currentRoom="general";
 
-function doSend(){
-  var inp=document.getElementById('txt');
-  var text=inp.value.trim();
-  if(!text) return;
-  inp.value='';
-  add(text,'me');
-  setTimeout(function(){
-    var reply=getReply(text);
-    add(reply,'bot');
-  }, 400);
+const roomBar=document.getElementById('roomBar');
+roomBar.addEventListener('click',e=>{
+ if(e.target.classList.contains('room') && e.target.dataset.room){
+   document.querySelectorAll('.room').forEach(r=>r.classList.remove('active'));
+   e.target.classList.add('active');
+   currentRoom=e.target.dataset.room;
+   document.getElementById('msgInput').placeholder=`Type in #${currentRoom}...`;
+   load();
+ }
+});
+document.getElementById('addRoomBtn').onclick=()=>document.getElementById('roomModal').classList.add('show');
+document.getElementById('createRoomBtn').onclick=()=>{
+ let name=document.getElementById('newRoomName').value.trim().toLowerCase().replace(/\s+/g,'-');
+ if(!name) return;
+ let btn=document.createElement('button');btn.className='room';btn.dataset.room=name;btn.textContent='# '+name;
+ roomBar.insertBefore(btn, document.getElementById('addRoomBtn'));
+ document.getElementById('newRoomName').value='';document.getElementById('roomModal').classList.remove('show');
+ btn.click();
+};
+
+auth.onAuthStateChanged(u=>{if(u){currentUser=u;document.getElementById("authBox").style.display="none";load();}else{document.getElementById("authBox").style.display="flex";}});
+document.getElementById("signupBtn").onclick=async()=>{try{await auth.createUserWithEmailAndPassword(email.value,password.value);}catch(e){err.textContent=e.message;}};
+document.getElementById("loginBtn").onclick=async()=>{try{await auth.signInWithEmailAndPassword(email.value,password.value);}catch(e){err.textContent=e.message;}};
+
+// VOICE
+let mediaRecorder,audioChunks=[],isRecording=false;
+const micBtn=document.getElementById("micBtn");
+micBtn.onclick=async()=>{
+ if(!isRecording){
+  try{
+   let s=await navigator.mediaDevices.getUserMedia({audio:true});
+   mediaRecorder=new MediaRecorder(s);audioChunks=[];
+   mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
+   mediaRecorder.onstop=async()=>{
+    let blob=new Blob(audioChunks,{type:"audio/webm"});
+    let r=new FileReader();
+    r.onloadend=async()=>{let b64=r.result;let p={text:"🎤 Voice note",audio:b64,displayName:currentUser.email.split("@")[0],uid:currentUser.uid,timestamp:firebase.firestore.FieldValue.serverTimestamp(),room:currentRoom};if(replyTo){p.replyToName=replyTo.name;p.replyToText=replyTo.text;cancelReply();}await db.collection("messages").add(p);};
+    r.readAsDataURL(blob);
+   };
+   mediaRecorder.start();isRecording=true;micBtn.textContent="⏹️";micBtn.style.background="#ce1126";recStatus.style.display="block";
+  }catch(e){alert("Allow mic");}
+ }else{mediaRecorder.stop();isRecording=false;micBtn.textContent="🎤";micBtn.style.background="#2a2e3a";recStatus.style.display="none";}
+};
+
+// FILE EXPORT
+function handleFile(file){
+ if(!file) return;
+ if(file.size>15*1024*1024){alert("Max 15MB 🇬🇭");return;}
+ uploadStatus.style.display="block";uploadStatus.textContent="⏳ Uploading "+file.name;
+ let reader=new FileReader();
+ reader.onloadend=async()=>{
+  let b64=reader.result;let ft="file";
+  if(file.type.startsWith("image/")) ft="image";
+  if(file.type.startsWith("video/")) ft="video";
+  if(file.type.startsWith("audio/")) ft="audio";
+  let p={text:(ft==="image"?"📷":ft==="video"?"📹":"📎")+" "+file.name,displayName:currentUser.email.split("@")[0],uid:currentUser.uid,timestamp:firebase.firestore.FieldValue.serverTimestamp(),room:currentRoom,fileData:b64,fileName:file.name,fileType:ft};
+  if(replyTo){p.replyToName=replyTo.name;p.replyToText=replyTo.text;cancelReply();}
+  await db.collection("messages").add(p);uploadStatus.style.display="none";
+ };
+ reader.readAsDataURL(file);
 }
+fileInput.onchange=e=>handleFile(e.target.files[0]);
+imgInput.onchange=e=>handleFile(e.target.files[0]);
+vidInput.onchange=e=>handleFile(e.target.files[0]);
+
+// MODALS
+const niceModal=document.getElementById("niceModal"),editModal=document.getElementById("editModal"),roomModal=document.getElementById("roomModal");
+function closeModal(){niceModal.classList.remove("show");pendingDeleteId=null;}
+function closeEdit(){editModal.classList.remove("show");pendingEditId=null;}
+window.closeModal=closeModal;window.closeEdit=closeEdit;
+confirmDelBtn.onclick=async()=>{if(pendingDeleteId){await db.collection("messages").doc(pendingDeleteId).delete();closeModal();}};
+confirmEditBtn.onclick=async()=>{let nt=editInput.value.trim();if(nt&&pendingEditId){await db.collection("messages").doc(pendingEditId).update({text:nt+" (edited)"});closeEdit();}};
+function deleteMsg(id){pendingDeleteId=id;niceModal.classList.add("show");}
+function editMsg(id,t){pendingEditId=id;editInput.value=t.replace(" (edited)","");editModal.classList.add("show");}
+function startReply(n,t){replyTo={name:n,text:t};replyName.textContent="Replying to "+n;replyText.textContent=t.substring(0,40);replyPreview.style.display="flex";msgInput.focus();}
+function cancelReply(){replyTo=null;replyPreview.style.display="none";}
+window.deleteMsg=deleteMsg;window.editMsg=editMsg;window.startReply=startReply;window.cancelReply=cancelReply;
+
+let unsub=null;
+function load(){
+ if(unsub)unsub();
+ // Filter by room!
+ unsub=db.collection("messages").where("room","==",currentRoom).orderBy("timestamp","asc").limit(100).onSnapshot(snap=>{
+  let chat=document.getElementById("chat");chat.innerHTML="";
+  document.getElementById('roomCount').textContent=snap.size+" msgs";
+  snap.docs.forEach(doc=>{
+   let d=doc.data();
+   let audioHtml=d.audio?`<audio controls src="${d.audio}" style="width:100%;margin-top:8px"></audio>`:"";
+   let fileHtml="";
+   if(d.fileData){
+    if(d.fileType==="image") fileHtml=`<img src="${d.fileData}" style="max-width:100%;border-radius:12px;margin-top:8px">`;
+    else if(d.fileType==="video") fileHtml=`<video controls src="${d.fileData}" style="max-width:100%;border-radius:12px;margin-top:8px;max-height:280px"></video><a href="${d.fileData}" download="${d.fileName}" style="display:block;margin-top:6px;color:#ffcc00;font-size:12px">📥 Download</a>`;
+    else fileHtml=`<a href="${d.fileData}" download="${d.fileName}" style="display:block;background:#2a2e3a;padding:10px;border-radius:10px;margin-top:8px;color:#ffcc00;text-decoration:none">📥 ${d.fileName}</a>`;
+   }
+   let replyHtml=d.replyToText?`<div class="replyQuote"><b>${d.replyToName}</b><br>${d.replyToText}</div>`:"";
+   let isMe=d.uid===currentUser?.uid;
+   let delBtn=isMe?`<button class="smallBtn del" onclick="event.stopPropagation();deleteMsg('${doc.id}')">🗑️</button><button class="smallBtn" onclick="event.stopPropagation();editMsg('${doc.id}','${d.text.replace(/'/g,"\\'")}')">✏️ Edit</button>`:"";
+   let repBtn=`<button class="smallBtn" onclick="event.stopPropagation();startReply('${(d.displayName||'').replace(/'/g,"\\'")}','${d.text.replace(/'/g,"\\'")}')">↩️ Reply</button>`;
+   let div=document.createElement("div");div.className="msg"+(isMe?" me":"");
+   div.onclick=()=>{let o=div.classList.contains("showMenu");document.querySelectorAll(".msg").forEach(m=>m.classList.remove("showMenu"));if(!o)div.classList.add("showMenu");};
+   let initial=(d.displayName||"U")[0].toUpperCase();
+   div.innerHTML=`<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px"><div class="avatar">${initial}</div><div style="font-size:11px;opacity:.7">${d.displayName} • 🇬🇭</div></div>${replyHtml}<div>${d.text}</div>${audioHtml}${fileHtml}<div class="actBtns">${repBtn}${delBtn}</div>`;
+   chat.appendChild(div);
+  });
+  chat.scrollTop=chat.scrollHeight;
+ }, err=>{ // fallback if old msgs have no room field
+  db.collection("messages").orderBy("timestamp","asc").limit(100).onSnapshot(s2=>{
+    // show all if filter fails first time
+  });
+ });
+}
+sendBtn.onclick=async()=>{
+ let t=msgInput.value.trim();if(!t||!currentUser)return;msgInput.value="";
+ let p={text:t,displayName:currentUser.email.split("@")[0],uid:currentUser.uid,timestamp:firebase.firestore.FieldValue.serverTimestamp(),room:currentRoom};
+ if(replyTo){p.replyToName=replyTo.name;p.replyToText=replyTo.text;cancelReply();}
+ await db.collection("messages").add(p);
+};
+msgInput.onkeydown=e=>{if(e.key==="Enter")sendBtn.click();};
 </script>
 </body>
-</html>
+  </html>
